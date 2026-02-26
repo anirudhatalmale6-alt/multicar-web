@@ -1,0 +1,103 @@
+# ═══════════════════════════════════════════
+# MULTICAR — Apache Configuration
+# multicar.autos
+# ═══════════════════════════════════════════
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Force HTTPS (uncomment in production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Remove www (uncomment if desired)
+# RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+# RewriteRule ^(.*)$ https://%1/$1 [L,R=301]
+
+# ── Clean URLs ──
+
+# Homepage
+RewriteRule ^$ index.php [L]
+
+# Inventory
+RewriteRule ^inventario/?$ inventario.php [L,QSA]
+
+# Vehicle detail: /vehiculo/slug-name
+RewriteRule ^vehiculo/([a-zA-Z0-9\-]+)/?$ vehiculo.php?slug=$1 [L,QSA]
+
+# Contact
+RewriteRule ^contacto/?$ contacto.php [L,QSA]
+
+# Privacy & Legal (future pages)
+RewriteRule ^privacidad/?$ privacidad.php [L,QSA]
+RewriteRule ^aviso-legal/?$ aviso-legal.php [L,QSA]
+
+# Admin (pass through)
+RewriteRule ^admin/?$ admin/index.php [L,QSA]
+
+# ── Prevent direct access to PHP files via clean URLs ──
+# Only block if the file isn't directly requested (allow /api/lead.php etc.)
+
+# ── Security Headers ──
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    # XSS Protection
+    Header set X-XSS-Protection "1; mode=block"
+    # Clickjacking protection
+    Header set X-Frame-Options "SAMEORIGIN"
+    # Referrer policy
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# ── Prevent directory listing ──
+Options -Indexes
+
+# ── Block access to sensitive files ──
+<FilesMatch "^(config\.php|install\.php|\.env|\.git|composer\.json|composer\.lock)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Block access to includes directory
+RewriteRule ^includes/ - [F,L]
+
+# ── Caching for static assets ──
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType text/css "access plus 1 week"
+    ExpiresByType application/javascript "access plus 1 week"
+    ExpiresByType application/x-javascript "access plus 1 week"
+    ExpiresByType font/woff2 "access plus 1 month"
+    ExpiresByType font/woff "access plus 1 month"
+</IfModule>
+
+# ── Gzip compression ──
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/css
+    AddOutputFilterByType DEFLATE application/javascript application/x-javascript
+    AddOutputFilterByType DEFLATE application/json
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ── Error documents ──
+ErrorDocument 404 /index.php
+ErrorDocument 403 /index.php
+
+# ── PHP settings (if allowed) ──
+<IfModule mod_php.c>
+    php_value upload_max_filesize 10M
+    php_value post_max_size 12M
+    php_value max_execution_time 30
+    php_value session.cookie_httponly 1
+    php_value session.use_strict_mode 1
+</IfModule>
