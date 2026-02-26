@@ -3,9 +3,9 @@
  * Database connection singleton
  */
 class Database {
-    private static ?PDO $instance = null;
+    private static $instance = null;
 
-    public static function connect(): PDO {
+    public static function connect() {
         if (self::$instance === null) {
             $dsn = 'mysql:host=' . DB_HOST . ';dbname=' . DB_NAME . ';charset=' . DB_CHARSET;
             self::$instance = new PDO($dsn, DB_USER, DB_PASS, [

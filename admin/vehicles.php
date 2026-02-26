@@ -66,14 +66,14 @@ $page = min($page, $totalPages);
 $offset = ($page - 1) * $perPage;
 
 // Sort
-$orderSQL = match($sort) {
+$sortOptions = [
     'price_asc'  => 'v.price ASC',
     'price_desc' => 'v.price DESC',
     'year_asc'   => 'v.year ASC',
     'year_desc'  => 'v.year DESC',
     'oldest'     => 'v.created_at ASC',
-    default      => 'v.created_at DESC',
-};
+];
+$orderSQL = $sortOptions[$sort] ?? 'v.created_at DESC';
 
 // Fetch
 $stmt = db()->prepare("

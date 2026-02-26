@@ -1,0 +1,27 @@
+# MULTICAR — .htaccess (Compatible with shared hosting)
+
+# Enable Rewrite Engine
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # Force HTTPS (uncomment when SSL is active)
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
+    # Clean URLs
+    RewriteRule ^inventario/?$ inventario.php [L,QSA]
+    RewriteRule ^vehiculo/([a-zA-Z0-9_-]+)/?$ vehiculo.php?slug=$1 [L,QSA]
+    RewriteRule ^contacto/?$ contacto.php [L,QSA]
+    RewriteRule ^sitemap\.xml$ sitemap.php [L]
+
+    # Block access to sensitive files
+    RewriteRule ^(config\.php|install\.php) - [F,L]
+    RewriteRule ^includes/ - [F,L]
+</IfModule>
+
+# Disable directory listing
+Options -Indexes
+
+# Default charset
+AddDefaultCharset UTF-8
