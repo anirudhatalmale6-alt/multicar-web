@@ -4,11 +4,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="<?= SITE_URL ?>/" class="logo">
-                        <svg viewBox="0 0 48 42" fill="none" xmlns="http://www.w3.org/2000/svg" height="36">
-                            <path d="M4 38L16 6L24 22L32 6L44 38" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-                            <path d="M12 38L16 28" stroke="white" stroke-width="5" stroke-linecap="round"/>
-                        </svg>
-                        <span class="logo-text" style="font-size:20px">MULTICAR</span>
+                        <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" class="logo-img" style="height:40px;width:auto">
                     </a>
                     <p>Tu concesionario de confianza. Compra, venta, alquiler y renting de vehículos con garantía y profesionalismo.</p>
                     <div class="footer-social">

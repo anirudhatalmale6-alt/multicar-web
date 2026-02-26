@@ -115,6 +115,7 @@ body::before {
 }
 
 .logo svg { height: 42px; width: auto; }
+.logo-img { height: 42px; width: auto; object-fit: contain; }
 
 .logo-text {
     font-family: 'Outfit', sans-serif;
