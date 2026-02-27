@@ -50,7 +50,7 @@ function requireLogin(): void {
 }
 
 function formatPrice(float $price): string {
-    return number_format($price, 0, ',', '.') . ' €';
+    return number_format($price, 2, ',', '.') . ' €';
 }
 
 function formatMileage(int $km): string {
