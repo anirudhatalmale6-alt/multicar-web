@@ -38,6 +38,12 @@ if (empty($featured)) {
 $totalVehicles = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();
 $totalSold     = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido'")->fetchColumn();
 
+// ── Auto-calculate months of experience ──
+$businessStart = getSetting('business_start_date', '2023-09-01');
+$startDate = new DateTime($businessStart);
+$now = new DateTime();
+$monthsExperience = (int)$startDate->diff($now)->format('%m') + (int)$startDate->diff($now)->format('%y') * 12;
+
 // ── Brands for search ──
 $brands = getBrands();
 $years  = getYears();
@@ -105,6 +111,20 @@ require_once __DIR__ . '/includes/header.php';
                         <option value="100000">100.000 &euro;</option>
                     </select>
                 </div>
+                <div class="search-divider"></div>
+                <div class="search-field">
+                    <label>Km máx.</label>
+                    <select name="km_max">
+                        <option value="">Sin límite</option>
+                        <option value="10000">10.000 km</option>
+                        <option value="25000">25.000 km</option>
+                        <option value="50000">50.000 km</option>
+                        <option value="75000">75.000 km</option>
+                        <option value="100000">100.000 km</option>
+                        <option value="150000">150.000 km</option>
+                        <option value="200000">200.000 km</option>
+                    </select>
+                </div>
                 <button type="submit" class="search-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                     Buscar
@@ -113,15 +133,15 @@ require_once __DIR__ . '/includes/header.php';
 
             <div class="hero-stats">
                 <div class="hero-stat">
-                    <div class="hero-stat-number"><?= max((int)$totalSold, 500) ?>+</div>
+                    <div class="hero-stat-number"><?= max((int)$totalSold, 12) ?></div>
                     <div class="hero-stat-label">Vehículos vendidos</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-number">10+</div>
-                    <div class="hero-stat-label">Años de experiencia</div>
+                    <div class="hero-stat-number">+<?= max($monthsExperience, 36) ?></div>
+                    <div class="hero-stat-label">Meses de experiencia</div>
                 </div>
                 <div class="hero-stat">
-                    <div class="hero-stat-number">98%</div>
+                    <div class="hero-stat-number">100%</div>
                     <div class="hero-stat-label">Clientes satisfechos</div>
                 </div>
             </div>
@@ -183,7 +203,7 @@ require_once __DIR__ . '/includes/header.php';
                                 </span>
                             </div>
                             <div class="vehicle-card-footer">
-                                <div class="vehicle-price"><?= e($ph[4]) ?> &euro; <small>/IVA incl.</small></div>
+                                <div class="vehicle-price"><?= e($ph[4]) ?> &euro;</div>
                                 <a href="<?= SITE_URL ?>/inventario" class="btn-details">
                                     Ver
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -198,13 +218,15 @@ require_once __DIR__ . '/includes/header.php';
                         <a href="<?= SITE_URL ?>/vehiculo/<?= e($v['slug']) ?>">
                             <div class="vehicle-card-img">
                                 <?php if ($v['cover_image']): ?>
-                                <img src="<?= UPLOAD_URL . e($v['cover_image']) ?>" alt="<?= e($v['brand'] . ' ' . $v['model']) ?>" loading="lazy">
+                                <img src="<?= UPLOAD_URL . e($v['cover_image']) ?>" alt="<?= e($v['brand'] . ' ' . $v['model']) ?>">
                                 <?php else: ?>
                                 <div class="img-placeholder">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                                 </div>
                                 <?php endif; ?>
+                                <?php if ($v['featured']): ?>
                                 <span class="vehicle-badge">Destacado</span>
+                                <?php endif; ?>
                             </div>
                         </a>
                         <div class="vehicle-card-body">
@@ -215,16 +237,28 @@ require_once __DIR__ . '/includes/header.php';
                                     <?= (int)$v['year'] ?>
                                 </span>
                                 <span class="vehicle-spec">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="12"/></svg>
                                     <?= formatMileage((int)$v['mileage']) ?>
                                 </span>
                                 <span class="vehicle-spec">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                                    <!-- Fuel icon -->
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v3a2 2 0 002 2h0"/><path d="M21 13V8l-2-2"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
+                                    <?= fuelLabel($v['fuel']) ?>
+                                </span>
+                                <span class="vehicle-spec">
+                                    <!-- Transmission icon -->
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><line x1="6" y1="8" x2="6" y2="16"/><path d="M18 8v4a4 4 0 01-4 4H6"/></svg>
                                     <?= transmissionLabel($v['transmission']) ?>
                                 </span>
                             </div>
+                            <?php if (!empty($v['warranty'])): ?>
+                            <div class="vehicle-card-warranty">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                <?= e($v['warranty']) ?>
+                            </div>
+                            <?php endif; ?>
                             <div class="vehicle-card-footer">
-                                <div class="vehicle-price"><?= formatPrice((float)$v['price']) ?></div>
+                                <div class="vehicle-price"><?= formatPrice((float)$v['price']) ?><?php if (isset($v['sale_type']) && $v['sale_type'] === 'iva_incluido'): ?> <small>IVA incl.</small><?php endif; ?></div>
                                 <a href="<?= SITE_URL ?>/vehiculo/<?= e($v['slug']) ?>" class="btn-details">
                                     Ver
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -244,8 +278,8 @@ require_once __DIR__ . '/includes/header.php';
             <div class="section-header reveal">
                 <div>
                     <div class="section-label">¿Por qué elegirnos?</div>
-                    <h2 class="section-title">Confianza y profesionalismo</h2>
-                    <p class="section-subtitle">Más de una década ayudando a nuestros clientes a encontrar el vehículo perfecto.</p>
+                    <h2 class="section-title">Confianza y profesionalidad</h2>
+                    <p class="section-subtitle">Ayudamos a encontrar a cada cliente su coche perfecto.</p>
                 </div>
             </div>
 
@@ -260,10 +294,10 @@ require_once __DIR__ . '/includes/header.php';
 
                 <div class="feature-card reveal">
                     <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="8" y1="11" x2="14" y2="11"/><line x1="11" y1="8" x2="11" y2="14"/></svg>
                     </div>
-                    <h3>Financiamiento Flexible</h3>
-                    <p>Trabajamos con las mejores entidades financieras para ofrecerte las cuotas más competitivas del mercado.</p>
+                    <h3>Coche a tu medida</h3>
+                    <p>¿No encuentras en nuestro inventario tu coche? Solicita nuestro servicio de compra por encargo.</p>
                 </div>
 
                 <div class="feature-card reveal">
@@ -290,15 +324,15 @@ require_once __DIR__ . '/includes/header.php';
         <div class="container">
             <div class="stats-grid">
                 <div class="stat-item reveal">
-                    <div class="stat-number"><?= max((int)$totalSold, 500) ?><span class="accent">+</span></div>
+                    <div class="stat-number"><?= max((int)$totalSold, 12) ?></div>
                     <div class="stat-label">Vehículos vendidos</div>
                 </div>
                 <div class="stat-item reveal">
-                    <div class="stat-number">10<span class="accent">+</span></div>
-                    <div class="stat-label">Años de experiencia</div>
+                    <div class="stat-number"><span class="accent">+</span><?= max($monthsExperience, 36) ?></div>
+                    <div class="stat-label">Meses de experiencia</div>
                 </div>
                 <div class="stat-item reveal">
-                    <div class="stat-number">98<span class="accent">%</span></div>
+                    <div class="stat-number">100<span class="accent">%</span></div>
                     <div class="stat-label">Clientes satisfechos</div>
                 </div>
             </div>

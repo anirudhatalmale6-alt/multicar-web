@@ -17,6 +17,7 @@ $filterYearMin     = (int)($_GET['year_min'] ?? 0);
 $filterYearMax     = (int)($_GET['year_max'] ?? 0);
 $filterPrecioMin   = (float)($_GET['precio_min'] ?? 0);
 $filterPrecioMax   = (float)($_GET['precio_max'] ?? 0);
+$filterKmMax       = (int)($_GET['km_max'] ?? 0);
 $filterCombustible = trim($_GET['combustible'] ?? '');
 $filterTransmision = trim($_GET['transmision'] ?? '');
 $filterCarroceria  = trim($_GET['carroceria'] ?? '');
@@ -56,6 +57,11 @@ if ($filterPrecioMin > 0) {
 if ($filterPrecioMax > 0) {
     $where[]  = 'v.price <= ?';
     $params[] = $filterPrecioMax;
+}
+
+if ($filterKmMax > 0) {
+    $where[]  = 'v.mileage <= ?';
+    $params[] = $filterKmMax;
 }
 
 if ($filterCombustible !== '') {
@@ -331,20 +337,26 @@ require_once __DIR__ . '/includes/header.php';
                                         <?= (int)$v['year'] ?>
                                     </span>
                                     <span class="vehicle-spec">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="16" y2="12"/></svg>
                                         <?= formatMileage((int)$v['mileage']) ?>
                                     </span>
                                     <span class="vehicle-spec">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
-                                        <?= transmissionLabel($v['transmission']) ?>
-                                    </span>
-                                    <span class="vehicle-spec">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v3a2 2 0 002 2h0"/><path d="M21 13V8l-2-2"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
                                         <?= fuelLabel($v['fuel']) ?>
                                     </span>
+                                    <span class="vehicle-spec">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><line x1="6" y1="8" x2="6" y2="16"/><path d="M18 8v4a4 4 0 01-4 4H6"/></svg>
+                                        <?= transmissionLabel($v['transmission']) ?>
+                                    </span>
                                 </div>
+                                <?php if (!empty($v['warranty'])): ?>
+                                <div class="vehicle-card-warranty">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                    <?= e($v['warranty']) ?>
+                                </div>
+                                <?php endif; ?>
                                 <div class="vehicle-card-footer">
-                                    <div class="vehicle-price"><?= formatPrice((float)$v['price']) ?></div>
+                                    <div class="vehicle-price"><?= formatPrice((float)$v['price']) ?><?php if (isset($v['sale_type']) && $v['sale_type'] === 'iva_incluido'): ?> <small>IVA incl.</small><?php endif; ?></div>
                                     <a href="<?= SITE_URL ?>/vehiculo/<?= e($v['slug']) ?>" class="btn-details">
                                         Ver
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>

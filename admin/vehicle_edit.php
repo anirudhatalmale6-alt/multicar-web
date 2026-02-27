@@ -53,6 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description  = sanitizeQuillHtml(trim($_POST['description'] ?? ''));
     $features     = sanitizeQuillHtml(trim($_POST['features'] ?? ''));
     $video_url    = trim($_POST['video_url'] ?? '');
+    $warranty     = trim($_POST['warranty'] ?? '');
+    $sale_type    = $_POST['sale_type'] ?? 'rebu';
     $badge        = trim($_POST['badge'] ?? '');
     $status       = $_POST['status'] ?? 'disponible';
     $featured     = isset($_POST['featured']) ? 1 : 0;
@@ -69,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($transmission, ['manual','automatico'])) $errors[] = 'Transmision no valida.';
     if (!in_array($body_type, ['sedan','suv','hatchback','coupe','cabrio','familiar','monovolumen','furgoneta','pick-up','otro'])) $errors[] = 'Tipo de carroceria no valido.';
     if (!in_array($status, ['disponible','reservado','vendido'])) $errors[] = 'Estado no valido.';
+    if (!in_array($sale_type, ['rebu','iva_incluido'])) $errors[] = 'Tipo de venta no valido.';
 
     if (!empty($errors)) {
         foreach ($errors as $err) flash('error', $err);
@@ -85,13 +88,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = db()->prepare("UPDATE vehicles SET
                 slug=?, brand=?, model=?, version=?, year=?, price=?, mileage=?,
                 fuel=?, transmission=?, power_hp=?, doors=?, color=?, body_type=?,
-                description=?, features=?, video_url=?, badge=?, status=?, featured=?,
+                description=?, features=?, video_url=?, warranty=?, sale_type=?,
+                badge=?, status=?, featured=?,
                 meta_title=?, meta_description=?
                 WHERE id = ?");
             $stmt->execute([
                 $slug, $brand, $model, $version, $year, $price, $mileage,
                 $fuel, $transmission, $power_hp, $doors, $color, $body_type,
-                $description, $features, $video_url, $badge, $status, $featured,
+                $description, $features, $video_url, $warranty, $sale_type,
+                $badge, $status, $featured,
                 $meta_title, $meta_desc, $vehicleId
             ]);
             $savedId = $vehicleId;
@@ -101,12 +106,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = db()->prepare("INSERT INTO vehicles
                 (slug, brand, model, version, year, price, mileage, fuel, transmission,
                  power_hp, doors, color, body_type, description, features, video_url,
-                 badge, status, featured, meta_title, meta_description, created_by)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                 warranty, sale_type, badge, status, featured, meta_title, meta_description, created_by)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             $stmt->execute([
                 $slug, $brand, $model, $version, $year, $price, $mileage,
                 $fuel, $transmission, $power_hp, $doors, $color, $body_type,
-                $description, $features, $video_url, $badge, $status, $featured,
+                $description, $features, $video_url, $warranty, $sale_type,
+                $badge, $status, $featured,
                 $meta_title, $meta_desc, $_SESSION['user_id']
             ]);
             $savedId = db()->lastInsertId();
@@ -387,6 +393,21 @@ include __DIR__ . '/includes/admin_header.php';
                             <option value="reservado" <?= ($f['status'] ?? '') === 'reservado' ? 'selected' : '' ?>>Reservado</option>
                             <option value="vendido" <?= ($f['status'] ?? '') === 'vendido' ? 'selected' : '' ?>>Vendido</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="warranty">Garantía</label>
+                        <input type="text" id="warranty" name="warranty" class="form-control"
+                               value="<?= e($f['warranty'] ?? '') ?>"
+                               placeholder="Ej: 12 meses de garantía, 24 meses, Sin garantía...">
+                        <div class="hint">Se muestra en negrita en la tarjeta del vehículo</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="sale_type">Tipo de venta</label>
+                        <select id="sale_type" name="sale_type" class="form-control">
+                            <option value="rebu" <?= ($f['sale_type'] ?? 'rebu') === 'rebu' ? 'selected' : '' ?>>REBU (Régimen especial)</option>
+                            <option value="iva_incluido" <?= ($f['sale_type'] ?? '') === 'iva_incluido' ? 'selected' : '' ?>>IVA Incluido</option>
+                        </select>
+                        <div class="hint">Solo se muestra "IVA Incl." en el precio si seleccionas IVA Incluido</div>
                     </div>
                     <div class="form-group">
                         <label for="badge">Etiqueta especial</label>

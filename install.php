@@ -50,6 +50,8 @@ try {
         `description` TEXT DEFAULT NULL,
         `features` TEXT DEFAULT NULL,
         `video_url` VARCHAR(500) DEFAULT NULL,
+        `warranty` VARCHAR(150) DEFAULT NULL,
+        `sale_type` ENUM('rebu','iva_incluido') NOT NULL DEFAULT 'rebu',
         `badge` VARCHAR(50) DEFAULT NULL,
         `status` ENUM('disponible','reservado','vendido') NOT NULL DEFAULT 'disponible',
         `featured` TINYINT(1) NOT NULL DEFAULT 0,
@@ -108,6 +110,7 @@ try {
         ['site_schedule', 'Lun – Vie: 9:00 – 19:00 | Sáb: 10:00 – 14:00'],
         ['hero_title', 'Encuentra tu próximo vehículo'],
         ['hero_subtitle', 'Compra, venta, alquiler y renting de vehículos con garantía y la confianza de profesionales.'],
+        ['business_start_date', '2023-09-01'],
     ];
 
     $stmt = $pdo->prepare("INSERT IGNORE INTO `settings` (`key`, `value`) VALUES (?, ?)");

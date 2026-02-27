@@ -134,7 +134,7 @@ require_once __DIR__ . '/includes/header.php';
                     <div class="gallery-thumbs">
                         <?php foreach ($images as $idx => $img): ?>
                         <div class="gallery-thumb<?= $idx === 0 ? ' active' : '' ?>">
-                            <img src="<?= UPLOAD_URL . e($img['filename']) ?>" alt="<?= e($vehicleFullName) ?> - Foto <?= $idx + 1 ?>" loading="lazy">
+                            <img src="<?= UPLOAD_URL . e($img['filename']) ?>" alt="<?= e($vehicleFullName) ?> - Foto <?= $idx + 1 ?>">
                         </div>
                         <?php endforeach; ?>
                     </div>
@@ -157,8 +157,15 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <div class="vehicle-info-price">
-                        <div class="price"><?= formatPrice((float)$vehicle['price']) ?> <small>IVA incl.</small></div>
+                        <div class="price"><?= formatPrice((float)$vehicle['price']) ?><?php if (isset($vehicle['sale_type']) && $vehicle['sale_type'] === 'iva_incluido'): ?> <small>IVA incl.</small><?php endif; ?></div>
                     </div>
+
+                    <?php if (!empty($vehicle['warranty'])): ?>
+                    <div class="vehicle-warranty-badge">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <strong><?= e($vehicle['warranty']) ?></strong>
+                    </div>
+                    <?php endif; ?>
 
                     <!-- Specs Grid -->
                     <div class="specs-grid">
@@ -177,14 +184,14 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                         </div>
                         <div class="spec-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22V5a2 2 0 012-2h8a2 2 0 012 2v17"/><path d="M15 10h2a2 2 0 012 2v3a2 2 0 002 2h0"/><path d="M21 13V8l-2-2"/><rect x="6" y="6" width="6" height="5" rx="1"/></svg>
                             <div class="spec-item-content">
                                 <div class="spec-item-label">Combustible</div>
                                 <div class="spec-item-value"><?= fuelLabel($vehicle['fuel']) ?></div>
                             </div>
                         </div>
                         <div class="spec-item">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2"/><circle cx="18" cy="6" r="2"/><circle cx="6" cy="18" r="2"/><line x1="6" y1="8" x2="6" y2="16"/><path d="M18 8v4a4 4 0 01-4 4H6"/></svg>
                             <div class="spec-item-content">
                                 <div class="spec-item-label">Transmisión</div>
                                 <div class="spec-item-value"><?= transmissionLabel($vehicle['transmission']) ?></div>
