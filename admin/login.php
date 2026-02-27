@@ -181,7 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="login-logo">
-            <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" style="height:48px;width:auto;margin:0 auto;">
+            <img src="<?= SITE_URL ?>/assets/img/logo-white-transparent.png" alt="MULTICAR" style="max-width:280px;height:auto;margin:0 auto;display:block;">
             <div class="logo-sub">Panel de Administracion</div>
         </div>
 

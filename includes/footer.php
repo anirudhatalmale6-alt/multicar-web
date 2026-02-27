@@ -4,7 +4,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="<?= SITE_URL ?>/" class="logo">
-                        <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" class="logo-img" style="height:40px;width:auto">
+                        <img src="<?= SITE_URL ?>/assets/img/logo-white-transparent.png" alt="MULTICAR" class="logo-img" style="height:40px;width:auto">
                     </a>
                     <p>Tu concesionario de confianza. Compra, venta, alquiler y renting de vehículos con garantía y profesionalismo.</p>
                     <div class="footer-social">

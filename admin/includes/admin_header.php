@@ -766,7 +766,7 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-logo">
-            <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" style="height:36px;width:auto;object-fit:contain;">
+            <img src="<?= SITE_URL ?>/assets/img/logo-white-transparent.png" alt="MULTICAR" style="max-width:200px;height:auto;">
             <div class="logo-sub">Panel Admin</div>
         </div>
         <nav class="sidebar-nav">

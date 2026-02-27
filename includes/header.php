@@ -60,7 +60,7 @@ $ogImage         = $ogImage         ?? SITE_URL . '/assets/img/og-default.jpg';
     <header class="header<?= $headerSolid ? ' header-solid' : '' ?>" id="header">
         <div class="header-inner">
             <a href="<?= SITE_URL ?>/" class="logo">
-                <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" class="logo-img">
+                <img src="<?= SITE_URL ?>/assets/img/logo-white-transparent.png" alt="MULTICAR" class="logo-img">
             </a>
 
             <nav class="nav" id="mainNav">
