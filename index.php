@@ -10,7 +10,7 @@ $pageDescription = SITE_NAME . ' — Tu concesionario de confianza para vehícul
 $activePage      = 'inicio';
 $headerSolid     = false;
 
-// ── Featured vehicles ──
+// ── Featured vehicles (show featured first, then latest available) ──
 $stmtFeatured = db()->query("
     SELECT v.*,
         (SELECT vi.filename FROM vehicle_images vi WHERE vi.vehicle_id = v.id ORDER BY vi.is_cover DESC, vi.sort_order ASC LIMIT 1) AS cover_image
@@ -20,6 +20,19 @@ $stmtFeatured = db()->query("
     LIMIT 6
 ");
 $featured = $stmtFeatured->fetchAll();
+
+// If no featured, show latest available vehicles
+if (empty($featured)) {
+    $stmtLatest = db()->query("
+        SELECT v.*,
+            (SELECT vi.filename FROM vehicle_images vi WHERE vi.vehicle_id = v.id ORDER BY vi.is_cover DESC, vi.sort_order ASC LIMIT 1) AS cover_image
+        FROM vehicles v
+        WHERE v.status = 'disponible'
+        ORDER BY v.created_at DESC
+        LIMIT 6
+    ");
+    $featured = $stmtLatest->fetchAll();
+}
 
 // ── Stats ──
 $totalVehicles = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();

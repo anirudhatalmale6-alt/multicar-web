@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Acceso — MULTICAR Admin</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/favicon.png">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -180,10 +181,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     <div class="login-container">
         <div class="login-logo">
-            <div class="logo-box">
-                <div class="logo-icon">M</div>
-                <div class="logo-text">MULTICAR</div>
-            </div>
+            <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" style="height:48px;width:auto;margin:0 auto;">
             <div class="logo-sub">Panel de Administracion</div>
         </div>
 

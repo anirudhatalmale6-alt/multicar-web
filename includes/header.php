@@ -52,7 +52,7 @@ $ogImage         = $ogImage         ?? SITE_URL . '/assets/img/og-default.jpg';
     <link rel="stylesheet" href="<?= SITE_URL ?>/assets/css/style.css">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="<?= SITE_URL ?>/assets/img/favicon.svg">
+    <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/favicon.png">
 </head>
 <body class="<?= e($bodyClass) ?>">
 

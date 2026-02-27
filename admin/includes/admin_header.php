@@ -16,6 +16,7 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= e($adminTitle) ?> — MULTICAR Admin</title>
     <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" type="image/png" href="<?= SITE_URL ?>/assets/img/favicon.png">
     <style>
         /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -79,25 +80,13 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
             padding: 20px 24px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             display: flex;
+            flex-direction: column;
             align-items: center;
-            gap: 12px;
+            gap: 6px;
         }
-        .sidebar-logo .logo-icon {
-            width: 40px; height: 40px;
-            background: var(--gold);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 18px;
-            color: var(--navy-dark);
-            flex-shrink: 0;
-        }
-        .sidebar-logo .logo-text {
-            font-size: 20px;
-            font-weight: 700;
-            letter-spacing: 1px;
+        .sidebar-logo img {
+            max-width: 180px;
+            height: auto;
         }
         .sidebar-logo .logo-sub {
             font-size: 10px;
@@ -777,11 +766,8 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
     <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
         <div class="sidebar-logo">
-            <div class="logo-icon">M</div>
-            <div>
-                <div class="logo-text">MULTICAR</div>
-                <div class="logo-sub">Panel Admin</div>
-            </div>
+            <img src="<?= SITE_URL ?>/assets/img/logo-white.png" alt="MULTICAR" style="height:36px;width:auto;object-fit:contain;">
+            <div class="logo-sub">Panel Admin</div>
         </div>
         <nav class="sidebar-nav">
             <a href="<?= SITE_URL ?>/admin/" class="<?= $currentPage === 'index' ? 'active' : '' ?>">
@@ -791,10 +777,6 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
             <a href="<?= SITE_URL ?>/admin/vehicles.php" class="<?= $currentPage === 'vehicles' ? 'active' : '' ?>">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
                 Vehiculos
-            </a>
-            <a href="<?= SITE_URL ?>/admin/vehicle_edit.php" class="<?= ($currentPage === 'vehicle_edit' && !isset($_GET['id'])) ? 'active' : '' ?>">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-                Nuevo Vehiculo
             </a>
             <a href="<?= SITE_URL ?>/admin/leads.php" class="<?= $currentPage === 'leads' ? 'active' : '' ?>">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>

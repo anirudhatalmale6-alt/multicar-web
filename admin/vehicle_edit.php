@@ -24,6 +24,12 @@ if ($isEdit) {
 
 $adminTitle = $isEdit ? 'Editar vehiculo' : 'Nuevo vehiculo';
 
+// Sanitize HTML for Quill output (allow safe tags only)
+function sanitizeQuillHtml($html) {
+    $allowed = '<p><br><strong><em><u><s><h1><h2><h3><ol><ul><li><a><span><sub><sup><blockquote><pre>';
+    return strip_tags($html, $allowed);
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!verifyCsrf()) {
@@ -44,8 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $doors        = (int)($_POST['doors'] ?? 5);
     $color        = trim($_POST['color'] ?? '');
     $body_type    = $_POST['body_type'] ?? 'sedan';
-    $description  = trim($_POST['description'] ?? '');
-    $features     = trim($_POST['features'] ?? '');
+    $description  = sanitizeQuillHtml(trim($_POST['description'] ?? ''));
+    $features     = sanitizeQuillHtml(trim($_POST['features'] ?? ''));
     $video_url    = trim($_POST['video_url'] ?? '');
     $badge        = trim($_POST['badge'] ?? '');
     $status       = $_POST['status'] ?? 'disponible';
@@ -145,6 +151,70 @@ $f = $_POST ?: ($vehicle ?: []);
 
 include __DIR__ . '/includes/admin_header.php';
 ?>
+
+<!-- Quill.js Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<style>
+    .quill-editor {
+        background: var(--white);
+        border-radius: 0 0 var(--radius) var(--radius);
+        min-height: 200px;
+    }
+    .quill-editor .ql-editor {
+        min-height: 200px;
+        font-size: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        color: var(--gray-800);
+        line-height: 1.6;
+    }
+    .quill-editor .ql-editor.ql-blank::before {
+        color: var(--gray-400);
+        font-style: normal;
+    }
+    /* Toolbar styling to match admin navy/gold theme */
+    .ql-toolbar.ql-snow {
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius) var(--radius) 0 0;
+        background: var(--gray-50);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+    .ql-container.ql-snow {
+        border: 1px solid var(--gray-300);
+        border-top: none;
+        border-radius: 0 0 var(--radius) var(--radius);
+    }
+    .ql-toolbar.ql-snow .ql-picker-label:hover,
+    .ql-toolbar.ql-snow button:hover,
+    .ql-toolbar.ql-snow button:focus,
+    .ql-toolbar.ql-snow .ql-active {
+        color: var(--navy) !important;
+    }
+    .ql-toolbar.ql-snow button:hover .ql-stroke,
+    .ql-toolbar.ql-snow button:focus .ql-stroke,
+    .ql-toolbar.ql-snow .ql-active .ql-stroke,
+    .ql-toolbar.ql-snow .ql-picker-label:hover .ql-stroke {
+        stroke: var(--navy) !important;
+    }
+    .ql-toolbar.ql-snow button:hover .ql-fill,
+    .ql-toolbar.ql-snow button:focus .ql-fill,
+    .ql-toolbar.ql-snow .ql-active .ql-fill,
+    .ql-toolbar.ql-snow .ql-picker-label:hover .ql-fill {
+        fill: var(--navy) !important;
+    }
+    .ql-snow .ql-editor a {
+        color: var(--gold);
+    }
+    /* Focus state */
+    .ql-container.ql-snow:focus-within {
+        border-color: var(--navy);
+        box-shadow: 0 0 0 3px rgba(27,58,92,0.1);
+    }
+    .ql-container.ql-snow:focus-within + .ql-toolbar.ql-snow,
+    .ql-toolbar.ql-snow:has(+ .ql-container.ql-snow:focus-within) {
+        border-color: var(--navy);
+    }
+</style>
 
 <div class="d-flex justify-between items-center mb-3 flex-wrap gap-2">
     <a href="<?= SITE_URL ?>/admin/vehicles.php" class="btn btn-outline btn-sm">
@@ -280,23 +350,23 @@ include __DIR__ . '/includes/admin_header.php';
                 </div>
             </div>
 
-            <!-- Description & Features -->
+            <!-- Description & Features (Quill Rich Text) -->
             <div class="card mb-3">
                 <div class="card-header">
                     <h2>Descripcion y equipamiento</h2>
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="description">Descripcion</label>
-                        <textarea id="description" name="description" class="form-control" rows="5"
-                                  placeholder="Describe el vehiculo: estado general, equipamiento destacado, historial de mantenimiento..."><?= e($f['description'] ?? '') ?></textarea>
-                        <div class="hint">Escribe una descripcion detallada del vehiculo para los compradores</div>
+                        <label>Descripcion</label>
+                        <div id="quill-description" class="quill-editor"></div>
+                        <textarea id="description" name="description" style="display:none"><?= e($f['description'] ?? '') ?></textarea>
+                        <div class="hint">Usa el editor para dar formato: negritas, listas, encabezados, etc.</div>
                     </div>
                     <div class="form-group mb-0">
-                        <label for="features">Equipamiento / Extras</label>
-                        <textarea id="features" name="features" class="form-control" rows="6"
-                                  placeholder="Escribe un extra por linea, por ejemplo:&#10;Navegador GPS&#10;Sensores de aparcamiento&#10;Camara trasera&#10;Techo panoramico"><?= e($f['features'] ?? '') ?></textarea>
-                        <div class="hint">Escribe un equipamiento o extra por cada linea</div>
+                        <label>Equipamiento / Extras</label>
+                        <div id="quill-features" class="quill-editor"></div>
+                        <textarea id="features" name="features" style="display:none"><?= e($f['features'] ?? '') ?></textarea>
+                        <div class="hint">Usa listas para organizar el equipamiento del vehiculo</div>
                     </div>
                 </div>
             </div>
@@ -435,6 +505,59 @@ include __DIR__ . '/includes/admin_header.php';
 </form>
 
 <script>
+// ===== Quill Rich Text Editors =====
+(function(){
+    var toolbarOptions = [
+        [{ 'header': [1, 2, 3, false] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+        [{ 'align': [] }],
+        ['link'],
+        ['clean']
+    ];
+
+    // Initialize Description editor
+    var quillDesc = new Quill('#quill-description', {
+        theme: 'snow',
+        modules: { toolbar: toolbarOptions },
+        placeholder: 'Describe el vehiculo: estado general, equipamiento destacado, historial de mantenimiento...'
+    });
+
+    // Initialize Features editor
+    var quillFeat = new Quill('#quill-features', {
+        theme: 'snow',
+        modules: { toolbar: toolbarOptions },
+        placeholder: 'Equipamiento y extras del vehiculo. Usa listas para organizar mejor...'
+    });
+
+    // Pre-populate with existing content (HTML from database)
+    var descField = document.getElementById('description');
+    var featField = document.getElementById('features');
+
+    if (descField.value.trim()) {
+        quillDesc.root.innerHTML = descField.value;
+    }
+    if (featField.value.trim()) {
+        quillFeat.root.innerHTML = featField.value;
+    }
+
+    // On form submit, copy Quill HTML to hidden textareas
+    var form = document.getElementById('vehicleForm');
+    form.addEventListener('submit', function() {
+        // Get the HTML content; if editor is empty, store empty string
+        var descHtml = quillDesc.root.innerHTML;
+        var featHtml = quillFeat.root.innerHTML;
+
+        // Quill uses <p><br></p> for empty content
+        if (descHtml === '<p><br></p>') descHtml = '';
+        if (featHtml === '<p><br></p>') featHtml = '';
+
+        descField.value = descHtml;
+        featField.value = featHtml;
+    });
+})();
+
 // ===== Drag & Drop Upload =====
 (function(){
     var zone = document.getElementById('uploadZone');

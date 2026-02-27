@@ -52,11 +52,6 @@ $stmtViews->execute([$vehicle['id']]);
 // ── Get images ──
 $images = getVehicleImages($vehicle['id']);
 
-// ── Get features ──
-$stmtFeatures = db()->prepare("SELECT feature FROM vehicle_features WHERE vehicle_id = ? ORDER BY id ASC");
-$stmtFeatures->execute([$vehicle['id']]);
-$features = $stmtFeatures->fetchAll(PDO::FETCH_COLUMN);
-
 // ── Related vehicles (same brand, exclude current) ──
 $stmtRelated = db()->prepare("
     SELECT v.*,
@@ -269,24 +264,19 @@ require_once __DIR__ . '/includes/header.php';
             <?php if (!empty($vehicle['description'])): ?>
             <div class="vehicle-description">
                 <h2>Descripción</h2>
-                <div class="content">
-                    <?= nl2br(e($vehicle['description'])) ?>
+                <div class="rich-content">
+                    <?= $vehicle['description'] ?>
                 </div>
             </div>
             <?php endif; ?>
 
             <!-- FEATURES -->
-            <?php if (!empty($features)): ?>
+            <?php if (!empty($vehicle['features'])): ?>
             <div class="vehicle-features">
                 <h2>Equipamiento</h2>
-                <ul class="features-list">
-                    <?php foreach ($features as $feature): ?>
-                    <li>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <?= e($feature) ?>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
+                <div class="rich-content">
+                    <?= $vehicle['features'] ?>
+                </div>
             </div>
             <?php endif; ?>
 
