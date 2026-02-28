@@ -1621,7 +1621,7 @@ body::before {
 
 .gallery-main {
     position: relative;
-    border-radius: var(--radius-lg);
+    border-radius: 0;
     overflow: hidden;
     background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
     cursor: zoom-in;
@@ -1634,16 +1634,67 @@ body::before {
     object-fit: cover;
 }
 
-.gallery-thumbs {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 10px;
-    margin-top: 12px;
+/* Carousel navigation arrows */
+.gallery-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.5);
+    border: none;
+    color: white;
+    width: 44px;
+    height: 44px;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+}
+.gallery-nav:hover { background: rgba(0,0,0,0.75); }
+.gallery-nav svg { width: 22px; height: 22px; }
+.gallery-prev { left: 0; }
+.gallery-next { right: 0; }
+
+/* Photo counter */
+.gallery-counter {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    background: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 12px;
+    border-radius: 0;
+    z-index: 2;
 }
 
+/* Scrollable thumbnails */
+.gallery-thumbs-wrap {
+    margin-top: 10px;
+    overflow: hidden;
+}
+
+.gallery-thumbs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--gray-200) transparent;
+    padding-bottom: 4px;
+}
+.gallery-thumbs::-webkit-scrollbar { height: 4px; }
+.gallery-thumbs::-webkit-scrollbar-track { background: transparent; }
+.gallery-thumbs::-webkit-scrollbar-thumb { background: var(--gray-200); border-radius: 2px; }
+
 .gallery-thumb {
-    aspect-ratio: 4/3;
-    border-radius: 10px;
+    flex: 0 0 100px;
+    height: 75px;
+    border-radius: 0;
     overflow: hidden;
     cursor: pointer;
     border: 3px solid transparent;
@@ -2373,7 +2424,7 @@ body::before {
     max-width: 90vw;
     max-height: 85vh;
     object-fit: contain;
-    border-radius: var(--radius);
+    border-radius: 0;
 }
 
 .lightbox-nav {
@@ -2502,7 +2553,7 @@ body::before {
     .inventory-layout { grid-template-columns: 1fr; }
 
     .vehicle-detail-grid { grid-template-columns: 1fr; gap: 24px; }
-    .gallery-thumbs { grid-template-columns: repeat(4, 1fr); }
+    .gallery-thumb { flex: 0 0 80px; height: 60px; }
     .specs-grid { grid-template-columns: 1fr; }
     .vehicle-cta { flex-direction: column; }
     .form-row { grid-template-columns: 1fr; }
@@ -2512,7 +2563,7 @@ body::before {
 }
 
 @media (max-width: 480px) {
-    .gallery-thumbs { grid-template-columns: repeat(3, 1fr); }
+    .gallery-thumb { flex: 0 0 70px; height: 52px; }
     .vehicle-info-price .price { font-size: 28px; }
     .filter-row { grid-template-columns: 1fr; }
 }

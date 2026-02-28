@@ -128,96 +128,131 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ═══════════════════════════════════════════
-    // GALLERY / LIGHTBOX (Vehicle detail page)
+    // GALLERY CAROUSEL / LIGHTBOX (Vehicle detail page)
     // ═══════════════════════════════════════════
     const galleryMain = document.querySelector('.gallery-main img');
     const galleryThumbs = document.querySelectorAll('.gallery-thumb');
+    const galleryPrev = document.querySelector('.gallery-prev');
+    const galleryNext = document.querySelector('.gallery-next');
+    const galleryCounter = document.getElementById('galleryCurrentIdx');
     const lightbox = document.getElementById('lightbox');
 
-    if (galleryMain && galleryThumbs.length > 0) {
-        // Thumbnail click
+    // Build image list from thumbnails
+    let galleryImages = [];
+    let galleryIndex = 0;
+
+    if (galleryThumbs.length > 0) {
         galleryThumbs.forEach(thumb => {
-            thumb.addEventListener('click', () => {
-                const src = thumb.querySelector('img').src;
-                galleryMain.src = src;
-                galleryThumbs.forEach(t => t.classList.remove('active'));
-                thumb.classList.add('active');
-            });
+            const img = thumb.querySelector('img');
+            if (img && img.src) galleryImages.push(img.src);
+        });
+    } else if (galleryMain && galleryMain.src) {
+        galleryImages.push(galleryMain.src);
+    }
+
+    function showGalleryImage(idx) {
+        if (!galleryMain || galleryImages.length === 0) return;
+        galleryIndex = (idx + galleryImages.length) % galleryImages.length;
+        galleryMain.src = galleryImages[galleryIndex];
+        if (galleryCounter) galleryCounter.textContent = galleryIndex + 1;
+        // Update active thumb
+        galleryThumbs.forEach((t, i) => t.classList.toggle('active', i === galleryIndex));
+        // Scroll active thumb into view
+        const activeThumb = galleryThumbs[galleryIndex];
+        if (activeThumb) activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+
+    // Handle broken main image — skip to next
+    if (galleryMain) {
+        galleryMain.addEventListener('error', () => {
+            if (galleryImages.length > 1) {
+                galleryImages.splice(galleryIndex, 1);
+                if (galleryIndex >= galleryImages.length) galleryIndex = 0;
+                galleryMain.src = galleryImages[galleryIndex];
+            }
         });
     }
 
+    // Thumbnail click
+    galleryThumbs.forEach((thumb, i) => {
+        thumb.addEventListener('click', () => showGalleryImage(i));
+    });
+
+    // Prev/Next arrows on main image
+    if (galleryPrev) galleryPrev.addEventListener('click', (e) => { e.stopPropagation(); showGalleryImage(galleryIndex - 1); });
+    if (galleryNext) galleryNext.addEventListener('click', (e) => { e.stopPropagation(); showGalleryImage(galleryIndex + 1); });
+
+    // Swipe support on main image (touch devices)
+    if (galleryMain) {
+        let touchStartX = 0;
+        const mainContainer = document.querySelector('.gallery-main');
+        if (mainContainer) {
+            mainContainer.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+            mainContainer.addEventListener('touchend', (e) => {
+                const diff = e.changedTouches[0].screenX - touchStartX;
+                if (Math.abs(diff) > 50) {
+                    if (diff < 0) showGalleryImage(galleryIndex + 1);
+                    else showGalleryImage(galleryIndex - 1);
+                }
+            }, { passive: true });
+        }
+    }
+
+    // Lightbox
     if (lightbox) {
         const lightboxImg = lightbox.querySelector('img');
         const lightboxClose = lightbox.querySelector('.lightbox-close');
         const lightboxPrev = lightbox.querySelector('.lightbox-prev');
         const lightboxNext = lightbox.querySelector('.lightbox-next');
-        let currentImages = [];
-        let currentIndex = 0;
+        let lbIndex = 0;
 
         // Open lightbox on main image click
         if (galleryMain) {
             const galleryMainContainer = document.querySelector('.gallery-main');
             if (galleryMainContainer) {
-                galleryMainContainer.addEventListener('click', () => {
-                    currentImages = [];
-                    galleryThumbs.forEach(thumb => {
-                        const img = thumb.querySelector('img');
-                        if (img) currentImages.push(img.src);
-                    });
-                    if (currentImages.length === 0 && galleryMain.src) {
-                        currentImages.push(galleryMain.src);
-                    }
-                    currentIndex = currentImages.indexOf(galleryMain.src);
-                    if (currentIndex < 0) currentIndex = 0;
-                    lightboxImg.src = currentImages[currentIndex];
+                galleryMainContainer.addEventListener('click', (e) => {
+                    if (e.target.closest('.gallery-nav')) return; // Don't open lightbox when clicking arrows
+                    lbIndex = galleryIndex;
+                    lightboxImg.src = galleryImages[lbIndex] || galleryMain.src;
                     lightbox.classList.add('active');
                     document.body.style.overflow = 'hidden';
                 });
             }
         }
 
-        // Close
-        if (lightboxClose) {
-            lightboxClose.addEventListener('click', () => {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-            });
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
         }
 
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
+        if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => { if (e.target === lightbox) closeLightbox(); });
 
-        // Navigation
         if (lightboxPrev) {
             lightboxPrev.addEventListener('click', (e) => {
                 e.stopPropagation();
-                currentIndex = (currentIndex - 1 + currentImages.length) % currentImages.length;
-                lightboxImg.src = currentImages[currentIndex];
+                lbIndex = (lbIndex - 1 + galleryImages.length) % galleryImages.length;
+                lightboxImg.src = galleryImages[lbIndex];
             });
         }
 
         if (lightboxNext) {
             lightboxNext.addEventListener('click', (e) => {
                 e.stopPropagation();
-                currentIndex = (currentIndex + 1) % currentImages.length;
-                lightboxImg.src = currentImages[currentIndex];
+                lbIndex = (lbIndex + 1) % galleryImages.length;
+                lightboxImg.src = galleryImages[lbIndex];
             });
         }
 
-        // Keyboard navigation
         document.addEventListener('keydown', (e) => {
-            if (!lightbox.classList.contains('active')) return;
-            if (e.key === 'Escape') {
-                lightbox.classList.remove('active');
-                document.body.style.overflow = '';
-            } else if (e.key === 'ArrowLeft' && lightboxPrev) {
-                lightboxPrev.click();
-            } else if (e.key === 'ArrowRight' && lightboxNext) {
-                lightboxNext.click();
+            if (lightbox.classList.contains('active')) {
+                if (e.key === 'Escape') closeLightbox();
+                else if (e.key === 'ArrowLeft' && lightboxPrev) lightboxPrev.click();
+                else if (e.key === 'ArrowRight' && lightboxNext) lightboxNext.click();
+            } else if (galleryImages.length > 1) {
+                // Arrow keys also work on the carousel when lightbox is closed
+                if (e.key === 'ArrowLeft') showGalleryImage(galleryIndex - 1);
+                else if (e.key === 'ArrowRight') showGalleryImage(galleryIndex + 1);
             }
         });
     }

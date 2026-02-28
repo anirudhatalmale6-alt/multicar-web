@@ -118,11 +118,20 @@ require_once __DIR__ . '/includes/header.php';
     <section class="vehicle-detail">
         <div class="container">
             <div class="vehicle-detail-grid">
-                <!-- GALLERY -->
+                <!-- GALLERY CAROUSEL -->
                 <div class="gallery">
                     <div class="gallery-main">
                         <?php if (!empty($images)): ?>
                         <img src="<?= UPLOAD_URL . e($images[0]['filename']) ?>" alt="<?= e($vehicleFullName) ?>" id="galleryMainImg">
+                        <?php if (count($images) > 1): ?>
+                        <button class="gallery-nav gallery-prev" aria-label="Anterior">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+                        </button>
+                        <button class="gallery-nav gallery-next" aria-label="Siguiente">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+                        </button>
+                        <div class="gallery-counter"><span id="galleryCurrentIdx">1</span> / <?= count($images) ?></div>
+                        <?php endif; ?>
                         <?php else: ?>
                         <div class="img-placeholder" style="width:100%;height:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#E2E8F0,#CBD5E1);">
                             <svg viewBox="0 0 24 24" width="80" height="80" fill="none" stroke="currentColor" stroke-width="1" opacity="0.3"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
@@ -131,12 +140,14 @@ require_once __DIR__ . '/includes/header.php';
                     </div>
 
                     <?php if (count($images) > 1): ?>
-                    <div class="gallery-thumbs">
-                        <?php foreach ($images as $idx => $img): ?>
-                        <div class="gallery-thumb<?= $idx === 0 ? ' active' : '' ?>">
-                            <img src="<?= UPLOAD_URL . e($img['filename']) ?>" alt="<?= e($vehicleFullName) ?> - Foto <?= $idx + 1 ?>">
+                    <div class="gallery-thumbs-wrap">
+                        <div class="gallery-thumbs" id="galleryThumbs">
+                            <?php foreach ($images as $idx => $img): ?>
+                            <div class="gallery-thumb<?= $idx === 0 ? ' active' : '' ?>" data-index="<?= $idx ?>">
+                                <img src="<?= UPLOAD_URL . e($img['filename']) ?>" alt="<?= e($vehicleFullName) ?> - Foto <?= $idx + 1 ?>" onerror="this.parentElement.style.display='none'">
+                            </div>
+                            <?php endforeach; ?>
                         </div>
-                        <?php endforeach; ?>
                     </div>
                     <?php endif; ?>
                 </div>

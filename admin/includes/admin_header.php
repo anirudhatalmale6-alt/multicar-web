@@ -510,7 +510,7 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
         }
         .image-item {
             position: relative;
-            border-radius: var(--radius);
+            border-radius: 0;
             overflow: hidden;
             border: 2px solid var(--gray-200);
             aspect-ratio: 4/3;
