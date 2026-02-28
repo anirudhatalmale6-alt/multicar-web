@@ -279,10 +279,20 @@ include __DIR__ . '/includes/admin_header.php';
                     <div class="form-row">
                         <div class="form-group">
                             <label for="price">Precio (EUR) *</label>
+                            <?php
+                                $priceVal = '';
+                                if (isset($f['price']) && $f['price'] !== '') {
+                                    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+                                        $priceVal = $f['price'];
+                                    } else {
+                                        $priceVal = number_format((float)$f['price'], 2, ',', '.');
+                                    }
+                                }
+                            ?>
                             <input type="text" id="price" name="price" class="form-control" required
-                                   value="<?= e($f['price'] ?? '') ?>"
-                                   placeholder="Ej: 18500">
-                            <div class="hint">Precio sin puntos ni comas (se formatea automaticamente)</div>
+                                   value="<?= e($priceVal) ?>"
+                                   placeholder="Ej: 18.500,00">
+                            <div class="hint">Formato español: 18.500,00 (punto = miles, coma = decimales)</div>
                         </div>
                         <div class="form-group">
                             <label for="mileage">Kilometraje</label>
