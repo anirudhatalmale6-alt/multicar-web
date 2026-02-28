@@ -25,7 +25,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
         <priority>0.7</priority>
     </url>
 <?php
-$stmt = db()->query("SELECT slug, updated_at FROM vehicles WHERE status IN ('disponible','reservado') ORDER BY updated_at DESC");
+$stmt = db()->query("SELECT slug, updated_at FROM vehicles WHERE status IN ('disponible','reservado') AND published_status = 'activo' ORDER BY updated_at DESC");
 while ($v = $stmt->fetch()):
 ?>
     <url>

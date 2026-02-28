@@ -10,7 +10,7 @@ if ($slug === '') {
     redirect(SITE_URL . '/inventario');
 }
 
-$stmt = db()->prepare("SELECT * FROM vehicles WHERE slug = ? LIMIT 1");
+$stmt = db()->prepare("SELECT * FROM vehicles WHERE slug = ? AND published_status = 'activo' LIMIT 1");
 $stmt->execute([$slug]);
 $vehicle = $stmt->fetch();
 
@@ -57,7 +57,7 @@ $stmtRelated = db()->prepare("
     SELECT v.*,
         (SELECT vi.filename FROM vehicle_images vi WHERE vi.vehicle_id = v.id ORDER BY vi.is_cover DESC, vi.sort_order ASC LIMIT 1) AS cover_image
     FROM vehicles v
-    WHERE v.brand = ? AND v.id != ? AND v.status = 'disponible'
+    WHERE v.brand = ? AND v.id != ? AND v.status = 'disponible' AND v.published_status = 'activo'
     ORDER BY v.created_at DESC
     LIMIT 3
 ");

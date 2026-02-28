@@ -87,6 +87,9 @@ if ($filterEstado !== '') {
     $where[] = "v.status IN ('disponible', 'reservado', 'proximamente')";
 }
 
+// Only show published vehicles on public site
+$where[] = "v.published_status = 'activo'";
+
 $whereSQL = implode(' AND ', $where);
 
 // ── ORDER BY ──

@@ -15,7 +15,7 @@ $stmtFeatured = db()->query("
     SELECT v.*,
         (SELECT vi.filename FROM vehicle_images vi WHERE vi.vehicle_id = v.id ORDER BY vi.is_cover DESC, vi.sort_order ASC LIMIT 1) AS cover_image
     FROM vehicles v
-    WHERE v.featured = 1 AND v.status = 'disponible'
+    WHERE v.featured = 1 AND v.status = 'disponible' AND v.published_status = 'activo'
     ORDER BY v.created_at DESC
     LIMIT 6
 ");
@@ -27,7 +27,7 @@ if (empty($featured)) {
         SELECT v.*,
             (SELECT vi.filename FROM vehicle_images vi WHERE vi.vehicle_id = v.id ORDER BY vi.is_cover DESC, vi.sort_order ASC LIMIT 1) AS cover_image
         FROM vehicles v
-        WHERE v.status = 'disponible'
+        WHERE v.status = 'disponible' AND v.published_status = 'activo'
         ORDER BY v.created_at DESC
         LIMIT 6
     ");
@@ -35,9 +35,9 @@ if (empty($featured)) {
 }
 
 // ── Stats ──
-$totalVehicles    = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();
-$totalProximamente = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'proximamente'")->fetchColumn();
-$totalSold        = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido'")->fetchColumn();
+$totalVehicles    = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible' AND published_status = 'activo'")->fetchColumn();
+$totalProximamente = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'proximamente' AND published_status = 'activo'")->fetchColumn();
+$totalSold        = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido' AND published_status = 'activo'")->fetchColumn();
 
 // ── Auto-calculate months of experience ──
 $businessStart = getSetting('business_start_date', '2023-09-01');

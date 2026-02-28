@@ -170,6 +170,9 @@ include __DIR__ . '/includes/admin_header.php';
                             $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red','proximamente'=>'badge-blue'][$v['status']] ?? 'badge-gray';
                         ?>
                         <span class="badge <?= $badgeClass ?>"><?= statusLabel($v['status']) ?></span>
+                        <?php if (($v['published_status'] ?? 'activo') !== 'activo'): ?>
+                            <span class="badge badge-gray" style="margin-left:4px"><?= ($v['published_status'] ?? '') === 'borrador' ? 'Borrador' : 'No Activo' ?></span>
+                        <?php endif; ?>
                     </td>
                     <td class="text-center text-sm text-muted"><?= number_format($v['views']) ?></td>
                     <td class="text-center text-sm"><?= (int)$v['leads_count'] > 0 ? '<span class="badge badge-blue">'.$v['leads_count'].'</span>' : '<span class="text-muted">0</span>' ?></td>

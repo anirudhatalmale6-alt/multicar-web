@@ -56,8 +56,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $warranty     = trim($_POST['warranty'] ?? '');
     $sale_type    = $_POST['sale_type'] ?? 'rebu';
     $badge        = trim($_POST['badge'] ?? '');
-    $status       = $_POST['status'] ?? 'disponible';
-    $featured     = isset($_POST['featured']) ? 1 : 0;
+    $status           = $_POST['status'] ?? 'disponible';
+    $published_status = $_POST['published_status'] ?? 'activo';
+    $featured         = isset($_POST['featured']) ? 1 : 0;
     $meta_title   = trim($_POST['meta_title'] ?? '');
     $meta_desc    = trim($_POST['meta_description'] ?? '');
 
@@ -71,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($transmission, ['manual','automatico'])) $errors[] = 'Transmision no valida.';
     if (!in_array($body_type, ['sedan','suv','hatchback','coupe','cabrio','familiar','monovolumen','furgoneta','pick-up','otro'])) $errors[] = 'Tipo de carroceria no valido.';
     if (!in_array($status, ['disponible','reservado','vendido','proximamente'])) $errors[] = 'Estado no valido.';
+    if (!in_array($published_status, ['borrador','activo','no_activo'])) $errors[] = 'Estado de publicacion no valido.';
     if (!in_array($sale_type, ['rebu','iva_incluido'])) $errors[] = 'Tipo de venta no valido.';
 
     if (!empty($errors)) {
@@ -89,14 +91,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 slug=?, brand=?, model=?, version=?, year=?, price=?, mileage=?,
                 fuel=?, transmission=?, power_hp=?, doors=?, color=?, body_type=?,
                 description=?, features=?, video_url=?, warranty=?, sale_type=?,
-                badge=?, status=?, featured=?,
+                badge=?, status=?, published_status=?, featured=?,
                 meta_title=?, meta_description=?
                 WHERE id = ?");
             $stmt->execute([
                 $slug, $brand, $model, $version, $year, $price, $mileage,
                 $fuel, $transmission, $power_hp, $doors, $color, $body_type,
                 $description, $features, $video_url, $warranty, $sale_type,
-                $badge, $status, $featured,
+                $badge, $status, $published_status, $featured,
                 $meta_title, $meta_desc, $vehicleId
             ]);
             $savedId = $vehicleId;
@@ -106,13 +108,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt = db()->prepare("INSERT INTO vehicles
                 (slug, brand, model, version, year, price, mileage, fuel, transmission,
                  power_hp, doors, color, body_type, description, features, video_url,
-                 warranty, sale_type, badge, status, featured, meta_title, meta_description, created_by)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                 warranty, sale_type, badge, status, published_status, featured, meta_title, meta_description, created_by)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
             $stmt->execute([
                 $slug, $brand, $model, $version, $year, $price, $mileage,
                 $fuel, $transmission, $power_hp, $doors, $color, $body_type,
                 $description, $features, $video_url, $warranty, $sale_type,
-                $badge, $status, $featured,
+                $badge, $status, $published_status, $featured,
                 $meta_title, $meta_desc, $_SESSION['user_id']
             ]);
             $savedId = db()->lastInsertId();
@@ -410,6 +412,15 @@ include __DIR__ . '/includes/admin_header.php';
                             <option value="vendido" <?= ($f['status'] ?? '') === 'vendido' ? 'selected' : '' ?>>Vendido</option>
                             <option value="proximamente" <?= ($f['status'] ?? '') === 'proximamente' ? 'selected' : '' ?>>Próximamente</option>
                         </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="published_status">Publicación</label>
+                        <select id="published_status" name="published_status" class="form-control">
+                            <option value="activo" <?= ($f['published_status'] ?? 'activo') === 'activo' ? 'selected' : '' ?>>Activo (visible en web)</option>
+                            <option value="borrador" <?= ($f['published_status'] ?? '') === 'borrador' ? 'selected' : '' ?>>Borrador (solo admin)</option>
+                            <option value="no_activo" <?= ($f['published_status'] ?? '') === 'no_activo' ? 'selected' : '' ?>>No Activo (oculto)</option>
+                        </select>
+                        <div class="hint">Solo los vehículos con estado "Activo" se muestran en la web pública</div>
                     </div>
                     <div class="form-group">
                         <label for="warranty">Garantía</label>

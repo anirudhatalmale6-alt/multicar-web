@@ -193,9 +193,9 @@ function getFlash(): array {
 }
 
 function getBrands(): array {
-    return db()->query("SELECT DISTINCT brand FROM vehicles WHERE status = 'disponible' ORDER BY brand")->fetchAll(PDO::FETCH_COLUMN);
+    return db()->query("SELECT DISTINCT brand FROM vehicles WHERE status = 'disponible' AND published_status = 'activo' ORDER BY brand")->fetchAll(PDO::FETCH_COLUMN);
 }
 
 function getYears(): array {
-    return db()->query("SELECT DISTINCT year FROM vehicles WHERE status = 'disponible' ORDER BY year DESC")->fetchAll(PDO::FETCH_COLUMN);
+    return db()->query("SELECT DISTINCT year FROM vehicles WHERE status = 'disponible' AND published_status = 'activo' ORDER BY year DESC")->fetchAll(PDO::FETCH_COLUMN);
 }
