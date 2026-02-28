@@ -13,16 +13,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$brand       = trim($_POST['brand'] ?? '');
-$model       = trim($_POST['model'] ?? '');
-$version     = trim($_POST['version'] ?? '');
-$year        = (int)($_POST['year'] ?? 0);
-$fuel        = trim($_POST['fuel'] ?? '');
-$transmission = trim($_POST['transmission'] ?? '');
-$powerHp     = (int)($_POST['power_hp'] ?? 0);
-$color       = trim($_POST['color'] ?? '');
-$mileage     = (int)str_replace(['.', ','], '', $_POST['mileage'] ?? '0');
-$bodyType    = trim($_POST['body_type'] ?? '');
+if (!isLoggedIn()) {
+    http_response_code(401);
+    echo json_encode(['error' => 'No autorizado']);
+    exit;
+}
+
+$input = json_decode(file_get_contents('php://input'), true);
+if (!$input) $input = $_POST; // fallback
+
+$brand       = trim($input['brand'] ?? '');
+$model       = trim($input['model'] ?? '');
+$version     = trim($input['version'] ?? '');
+$year        = (int)($input['year'] ?? 0);
+$fuel        = trim($input['fuel'] ?? '');
+$transmission = trim($input['transmission'] ?? '');
+$powerHp     = (int)($input['power_hp'] ?? 0);
+$color       = trim($input['color'] ?? '');
+$mileage     = (int)str_replace(['.', ','], '', $input['mileage'] ?? '0');
+$bodyType    = trim($input['body_type'] ?? '');
 
 if ($brand === '' || $model === '') {
     echo json_encode(['error' => 'Marca y modelo son obligatorios']);
