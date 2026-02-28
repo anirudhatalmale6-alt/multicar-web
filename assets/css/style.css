@@ -169,7 +169,7 @@ body::before {
     background: var(--accent);
     color: var(--white);
     padding: 10px 22px;
-    border-radius: 50px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 600;
     transition: var(--transition);
@@ -376,7 +376,7 @@ body::before {
     color: var(--white);
     border: none;
     padding: 14px 32px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 15px;
     font-weight: 600;
@@ -689,7 +689,7 @@ body::before {
     background: var(--navy);
     color: var(--white);
     padding: 10px 20px;
-    border-radius: 10px;
+    border-radius: 0;
     font-size: 13px;
     font-weight: 600;
     transition: var(--transition);
@@ -711,7 +711,7 @@ body::before {
     color: var(--navy);
     border: 2px solid var(--navy);
     padding: 12px 28px;
-    border-radius: 50px;
+    border-radius: 0;
     transition: var(--transition);
     letter-spacing: 0.3px;
 }
@@ -940,7 +940,7 @@ body::before {
     background: var(--accent);
     color: var(--white);
     padding: 16px 36px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -963,7 +963,7 @@ body::before {
     background: transparent;
     color: var(--white);
     padding: 16px 36px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -983,7 +983,7 @@ body::before {
     background: var(--navy);
     color: var(--white);
     padding: 14px 32px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 15px;
     font-weight: 600;
@@ -1413,7 +1413,7 @@ body::before {
     background: var(--navy);
     color: var(--white);
     border: none;
-    border-radius: 12px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 15px;
     font-weight: 600;
@@ -1432,7 +1432,7 @@ body::before {
     background: transparent;
     color: var(--gray-400);
     border: 1px solid var(--gray-200);
-    border-radius: 12px;
+    border-radius: 0;
     font-family: 'DM Sans', sans-serif;
     font-size: 14px;
     font-weight: 500;
@@ -1585,7 +1585,7 @@ body::before {
     background: var(--white);
     border: 1px solid var(--gray-200);
     padding: 12px 20px;
-    border-radius: 12px;
+    border-radius: 0;
     font-size: 14px;
     font-weight: 600;
     color: var(--navy);
@@ -1825,7 +1825,7 @@ body::before {
     background: #25D366;
     color: var(--white);
     padding: 16px 24px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -1852,7 +1852,7 @@ body::before {
     background: var(--navy);
     color: var(--white);
     padding: 16px 28px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -1887,7 +1887,7 @@ body::before {
 .share-btn {
     width: 38px;
     height: 38px;
-    border-radius: 10px;
+    border-radius: 0;
     background: var(--off-white);
     display: flex;
     align-items: center;
@@ -2174,7 +2174,7 @@ body::before {
     background: var(--accent);
     color: var(--white);
     border: none;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 16px;
     font-weight: 600;
@@ -2360,7 +2360,7 @@ body::before {
     background: #25D366;
     color: var(--white);
     padding: 14px 28px;
-    border-radius: 14px;
+    border-radius: 0;
     font-family: 'Stawix', 'Outfit', sans-serif;
     font-size: 15px;
     font-weight: 600;
