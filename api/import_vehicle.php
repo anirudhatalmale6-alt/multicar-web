@@ -65,16 +65,35 @@ if (!in_array($transmission, $validTrans)) $transmission = 'manual';
 if (!in_array($body_type, $validBodies)) $body_type = 'sedan';
 
 try {
+    // Check if published_status column exists
+    $hasPublishedStatus = false;
+    try {
+        $colCheck = db()->query("SHOW COLUMNS FROM vehicles LIKE 'published_status'");
+        $hasPublishedStatus = $colCheck->rowCount() > 0;
+    } catch (Exception $e) {}
+
     // Insert vehicle as borrador
-    $stmt = db()->prepare("INSERT INTO vehicles
-        (slug, brand, model, version, year, price, mileage, fuel, transmission,
-         body_type, description, status, published_status, featured, created_by)
-        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-    $stmt->execute([
-        $slug, $brand, $model, $version, $year, $price, $mileage,
-        $fuel, $transmission, $body_type, $description,
-        $status, 'borrador', 0, 0
-    ]);
+    if ($hasPublishedStatus) {
+        $stmt = db()->prepare("INSERT INTO vehicles
+            (slug, brand, model, version, year, price, mileage, fuel, transmission,
+             body_type, description, status, published_status, featured, created_by)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->execute([
+            $slug, $brand, $model, $version, $year, $price, $mileage,
+            $fuel, $transmission, $body_type, $description,
+            $status, 'borrador', 0, 0
+        ]);
+    } else {
+        $stmt = db()->prepare("INSERT INTO vehicles
+            (slug, brand, model, version, year, price, mileage, fuel, transmission,
+             body_type, description, status, featured, created_by)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $stmt->execute([
+            $slug, $brand, $model, $version, $year, $price, $mileage,
+            $fuel, $transmission, $body_type, $description,
+            $status, 0, 0
+        ]);
+    }
     $vehicleId = (int)db()->lastInsertId();
 
     // Handle photo URLs — download from InverCar
@@ -124,5 +143,5 @@ try {
 
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'message' => 'Error al crear vehículo.']);
+    echo json_encode(['success' => false, 'message' => 'Error al crear vehículo: ' . $e->getMessage()]);
 }
