@@ -560,6 +560,18 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
         .image-btn.btn-cover-img { background: var(--gold); color: #fff; }
         .image-btn.btn-delete-img { background: var(--red); color: #fff; }
 
+        /* Drag & Drop Reorder */
+        .image-item[draggable="true"] { cursor: grab; }
+        .image-item.dragging { opacity: 0.4; transform: scale(0.95); }
+        .image-item.drag-over { border-color: var(--navy); border-style: dashed; }
+        .image-grid .drag-hint {
+            grid-column: 1 / -1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--gray-400);
+            padding: 4px 0 0;
+        }
+
         /* ===== DRAG & DROP UPLOAD ===== */
         .upload-zone {
             border: 2px dashed var(--gray-300);

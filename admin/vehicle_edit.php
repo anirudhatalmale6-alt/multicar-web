@@ -440,7 +440,7 @@ include __DIR__ . '/includes/admin_header.php';
                     <?php if (!empty($images)): ?>
                     <div class="image-grid" id="existingImages">
                         <?php foreach ($images as $img): ?>
-                        <div class="image-item <?= $img['is_cover'] ? 'is-cover' : '' ?>" id="img-<?= $img['id'] ?>">
+                        <div class="image-item <?= $img['is_cover'] ? 'is-cover' : '' ?>" id="img-<?= $img['id'] ?>" draggable="true" data-id="<?= $img['id'] ?>">
                             <?php if ($img['is_cover']): ?>
                                 <span class="cover-badge">Portada</span>
                             <?php endif; ?>
@@ -459,6 +459,7 @@ include __DIR__ . '/includes/admin_header.php';
                             </div>
                         </div>
                         <?php endforeach; ?>
+                        <div class="drag-hint">Arrastra las imagenes para cambiar el orden</div>
                     </div>
                     <div style="margin-top:16px;margin-bottom:8px;height:1px;background:var(--gray-200)"></div>
                     <?php endif; ?>
@@ -756,6 +757,78 @@ function setCover(imageId, vehicleId) {
         }
     });
 }
+
+// ===== Drag & Drop Reorder Images =====
+(function(){
+    var grid = document.getElementById('existingImages');
+    if (!grid) return;
+
+    var dragEl = null;
+
+    grid.addEventListener('dragstart', function(e) {
+        var item = e.target.closest('.image-item');
+        if (!item) return;
+        dragEl = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', item.dataset.id);
+    });
+
+    grid.addEventListener('dragend', function(e) {
+        var item = e.target.closest('.image-item');
+        if (item) item.classList.remove('dragging');
+        grid.querySelectorAll('.image-item').forEach(function(el) {
+            el.classList.remove('drag-over');
+        });
+        dragEl = null;
+    });
+
+    grid.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        var item = e.target.closest('.image-item');
+        if (!item || item === dragEl) return;
+        grid.querySelectorAll('.image-item').forEach(function(el) {
+            el.classList.remove('drag-over');
+        });
+        item.classList.add('drag-over');
+    });
+
+    grid.addEventListener('dragleave', function(e) {
+        var item = e.target.closest('.image-item');
+        if (item) item.classList.remove('drag-over');
+    });
+
+    grid.addEventListener('drop', function(e) {
+        e.preventDefault();
+        var target = e.target.closest('.image-item');
+        if (!target || !dragEl || target === dragEl) return;
+        target.classList.remove('drag-over');
+
+        // Determine position: insert before or after
+        var items = Array.from(grid.querySelectorAll('.image-item'));
+        var dragIdx = items.indexOf(dragEl);
+        var targetIdx = items.indexOf(target);
+
+        if (dragIdx < targetIdx) {
+            grid.insertBefore(dragEl, target.nextSibling);
+        } else {
+            grid.insertBefore(dragEl, target);
+        }
+
+        // Save new order via AJAX
+        var newOrder = [];
+        grid.querySelectorAll('.image-item').forEach(function(el) {
+            newOrder.push(parseInt(el.dataset.id));
+        });
+
+        adminFetch('<?= SITE_URL ?>/admin/api/reorder_images.php', {
+            vehicle_id: <?= $vehicleId ?: 0 ?>,
+            order: newOrder,
+            csrf_token: '<?= csrfToken() ?>'
+        });
+    });
+})();
 </script>
 
 <?php include __DIR__ . '/includes/admin_footer.php'; ?>
