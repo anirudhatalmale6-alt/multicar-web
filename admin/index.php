@@ -17,15 +17,6 @@ $totalLeads      = db()->query("SELECT COUNT(*) FROM leads")->fetchColumn();
 $unreadLeadsCount = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->fetchColumn();
 $totalViews      = db()->query("SELECT COALESCE(SUM(views), 0) FROM vehicles")->fetchColumn();
 
-// Top viewed vehicles
-$topViewed = db()->query("
-    SELECT v.brand, v.model, v.year, v.views,
-        (SELECT COUNT(*) FROM leads WHERE vehicle_id = v.id) as leads_count
-    FROM vehicles v
-    ORDER BY v.views DESC
-    LIMIT 5
-")->fetchAll();
-
 // Recent leads (last 10)
 $recentLeads = db()->query("
     SELECT l.*, v.brand, v.model, v.year
@@ -346,34 +337,6 @@ include __DIR__ . '/includes/admin_header.php';
     </div>
 </div>
 
-<!-- Top Viewed Vehicles -->
-<?php if (!empty($topViewed)): ?>
-<div class="card mt-3">
-    <div class="card-header">
-        <h2>Vehiculos mas visitados</h2>
-    </div>
-    <div class="table-wrapper">
-        <table>
-            <thead>
-                <tr>
-                    <th>Vehiculo</th>
-                    <th class="text-center">Visitas</th>
-                    <th class="text-center">Consultas</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($topViewed as $tv): ?>
-                <tr>
-                    <td style="font-weight:600"><?= e($tv['brand'] . ' ' . $tv['model'] . ' ' . $tv['year']) ?></td>
-                    <td class="text-center"><?= number_format($tv['views']) ?></td>
-                    <td class="text-center"><?= (int)$tv['leads_count'] > 0 ? '<span class="badge badge-blue">'.$tv['leads_count'].'</span>' : '0' ?></td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</div>
-<?php endif; ?>
 
 <?php if ($hasAnalytics): ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
