@@ -53,7 +53,7 @@ try {
         `warranty` VARCHAR(150) DEFAULT NULL,
         `sale_type` ENUM('rebu','iva_incluido') NOT NULL DEFAULT 'rebu',
         `badge` VARCHAR(50) DEFAULT NULL,
-        `status` ENUM('disponible','reservado','vendido') NOT NULL DEFAULT 'disponible',
+        `status` ENUM('disponible','reservado','vendido','proximamente') NOT NULL DEFAULT 'disponible',
         `featured` TINYINT(1) NOT NULL DEFAULT 0,
         `meta_title` VARCHAR(255) DEFAULT NULL,
         `meta_description` VARCHAR(500) DEFAULT NULL,

@@ -674,7 +674,7 @@ $unreadLeads = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->
         .vehicle-thumb {
             width: 80px;
             height: 60px;
-            border-radius: 6px;
+            border-radius: 0;
             object-fit: cover;
             background: var(--gray-100);
         }

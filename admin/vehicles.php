@@ -50,7 +50,7 @@ if ($search !== '') {
     $params[] = $searchLike;
     $params[] = $searchLike;
 }
-if ($statusFilter !== '' && in_array($statusFilter, ['disponible','reservado','vendido'])) {
+if ($statusFilter !== '' && in_array($statusFilter, ['disponible','reservado','vendido','proximamente'])) {
     $where[] = "v.status = ?";
     $params[] = $statusFilter;
 }
@@ -75,10 +75,11 @@ $sortOptions = [
 ];
 $orderSQL = $sortOptions[$sort] ?? 'v.created_at DESC';
 
-// Fetch
+// Fetch with views and leads count
 $stmt = db()->prepare("
     SELECT v.*,
-        (SELECT filename FROM vehicle_images WHERE vehicle_id = v.id ORDER BY is_cover DESC, sort_order ASC LIMIT 1) as cover_img
+        (SELECT filename FROM vehicle_images WHERE vehicle_id = v.id ORDER BY is_cover DESC, sort_order ASC LIMIT 1) as cover_img,
+        (SELECT COUNT(*) FROM leads WHERE vehicle_id = v.id) as leads_count
     FROM vehicles v
     $whereSQL
     ORDER BY $orderSQL
@@ -102,6 +103,7 @@ include __DIR__ . '/includes/admin_header.php';
         <option value="disponible" <?= $statusFilter === 'disponible' ? 'selected' : '' ?>>Disponible</option>
         <option value="reservado" <?= $statusFilter === 'reservado' ? 'selected' : '' ?>>Reservado</option>
         <option value="vendido" <?= $statusFilter === 'vendido' ? 'selected' : '' ?>>Vendido</option>
+        <option value="proximamente" <?= $statusFilter === 'proximamente' ? 'selected' : '' ?>>Próximamente</option>
     </select>
     <select class="form-control" id="sortSelect" style="width:auto;min-width:160px">
         <option value="newest" <?= $sort === 'newest' ? 'selected' : '' ?>>Mas recientes</option>
@@ -135,6 +137,8 @@ include __DIR__ . '/includes/admin_header.php';
                     <th>Ano</th>
                     <th>Precio</th>
                     <th>Estado</th>
+                    <th class="text-center" title="Visualizaciones">Visitas</th>
+                    <th class="text-center" title="Consultas recibidas">Consultas</th>
                     <th style="width:50px" class="text-center">Dest.</th>
                     <th style="width:120px">Acciones</th>
                 </tr>
@@ -152,19 +156,23 @@ include __DIR__ . '/includes/admin_header.php';
                         <?php endif; ?>
                     </td>
                     <td>
-                        <div style="font-weight:600"><?= e($v['brand'] . ' ' . $v['model']) ?></div>
-                        <?php if ($v['version']): ?>
-                            <div class="text-sm text-muted"><?= e($v['version']) ?></div>
-                        <?php endif; ?>
+                        <a href="<?= SITE_URL ?>/admin/vehicle_edit.php?id=<?= $v['id'] ?>" style="text-decoration:none;color:inherit">
+                            <div style="font-weight:600"><?= e($v['brand'] . ' ' . $v['model']) ?></div>
+                            <?php if ($v['version']): ?>
+                                <div class="text-sm text-muted"><?= e($v['version']) ?></div>
+                            <?php endif; ?>
+                        </a>
                     </td>
                     <td><?= e($v['year']) ?></td>
                     <td style="font-weight:700;color:#1B3A5C"><?= formatPrice($v['price']) ?></td>
                     <td>
                         <?php
-                            $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red'][$v['status']] ?? 'badge-gray';
+                            $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red','proximamente'=>'badge-blue'][$v['status']] ?? 'badge-gray';
                         ?>
                         <span class="badge <?= $badgeClass ?>"><?= statusLabel($v['status']) ?></span>
                     </td>
+                    <td class="text-center text-sm text-muted"><?= number_format($v['views']) ?></td>
+                    <td class="text-center text-sm"><?= (int)$v['leads_count'] > 0 ? '<span class="badge badge-blue">'.$v['leads_count'].'</span>' : '<span class="text-muted">0</span>' ?></td>
                     <td class="text-center">
                         <button class="star-toggle <?= $v['featured'] ? 'active' : '' ?>"
                                 onclick="toggleFeatured(<?= $v['id'] ?>, this)"

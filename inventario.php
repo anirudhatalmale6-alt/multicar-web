@@ -84,7 +84,7 @@ if ($filterEstado !== '') {
     $params[] = $filterEstado;
 } else {
     // By default show only available
-    $where[] = "v.status IN ('disponible', 'reservado')";
+    $where[] = "v.status IN ('disponible', 'reservado', 'proximamente')";
 }
 
 $whereSQL = implode(' AND ', $where);
@@ -316,7 +316,9 @@ require_once __DIR__ . '/includes/header.php';
                                     </div>
                                     <?php endif; ?>
 
-                                    <?php if ($v['featured']): ?>
+                                    <?php if ($v['status'] === 'proximamente'): ?>
+                                    <span class="vehicle-badge badge-proximamente">Próximamente</span>
+                                    <?php elseif ($v['featured']): ?>
                                     <span class="vehicle-badge">Destacado</span>
                                     <?php elseif ($v['status'] === 'reservado'): ?>
                                     <span class="vehicle-badge badge-reservado">Reservado</span>

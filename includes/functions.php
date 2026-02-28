@@ -106,12 +106,12 @@ function bodyTypeLabel(string $bt): string {
 }
 
 function statusLabel(string $s): string {
-    $labels = ['disponible' => 'Disponible', 'reservado' => 'Reservado', 'vendido' => 'Vendido'];
+    $labels = ['disponible' => 'Disponible', 'reservado' => 'Reservado', 'vendido' => 'Vendido', 'proximamente' => 'Próximamente'];
     return $labels[$s] ?? $s;
 }
 
 function statusColor(string $s): string {
-    $colors = ['disponible' => '#22c55e', 'reservado' => '#f59e0b', 'vendido' => '#ef4444'];
+    $colors = ['disponible' => '#22c55e', 'reservado' => '#f59e0b', 'vendido' => '#ef4444', 'proximamente' => '#3b82f6'];
     return $colors[$s] ?? '#888';
 }
 

@@ -35,6 +35,14 @@ try {
         }
     }
 
+    // Add 'proximamente' to status ENUM
+    try {
+        $pdo->exec("ALTER TABLE vehicles MODIFY COLUMN `status` ENUM('disponible','reservado','vendido','proximamente') NOT NULL DEFAULT 'disponible'");
+        echo "<p style='color:green'>+ Estado 'proximamente' añadido.</p>";
+    } catch (PDOException $e) {
+        echo "<p style='color:orange'>= Estado ENUM: " . htmlspecialchars($e->getMessage()) . "</p>";
+    }
+
     // Add business_start_date setting
     $stmt = $pdo->prepare("INSERT IGNORE INTO `settings` (`key`, `value`) VALUES (?, ?)");
     $stmt->execute(['business_start_date', '2023-09-01']);

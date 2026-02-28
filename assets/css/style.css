@@ -567,6 +567,10 @@ body::before {
     background: var(--danger);
 }
 
+.vehicle-badge.badge-proximamente {
+    background: var(--info);
+}
+
 .vehicle-status-overlay {
     position: absolute;
     inset: 0;

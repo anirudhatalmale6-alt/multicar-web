@@ -12,8 +12,19 @@ $totalVehicles   = db()->query("SELECT COUNT(*) FROM vehicles")->fetchColumn();
 $disponibles     = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();
 $reservados      = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'reservado'")->fetchColumn();
 $vendidos        = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido'")->fetchColumn();
+$proximamente    = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'proximamente'")->fetchColumn();
 $totalLeads      = db()->query("SELECT COUNT(*) FROM leads")->fetchColumn();
 $unreadLeadsCount = db()->query("SELECT COUNT(*) FROM leads WHERE read_status = 0")->fetchColumn();
+$totalViews      = db()->query("SELECT COALESCE(SUM(views), 0) FROM vehicles")->fetchColumn();
+
+// Top viewed vehicles
+$topViewed = db()->query("
+    SELECT v.brand, v.model, v.year, v.views,
+        (SELECT COUNT(*) FROM leads WHERE vehicle_id = v.id) as leads_count
+    FROM vehicles v
+    ORDER BY v.views DESC
+    LIMIT 5
+")->fetchAll();
 
 // Recent leads (last 10)
 $recentLeads = db()->query("
@@ -84,12 +95,30 @@ include __DIR__ . '/includes/admin_header.php';
         </div>
     </div>
     <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div class="stat-info">
+            <h3><?= $proximamente ?></h3>
+            <p>Proximamente</p>
+        </div>
+    </div>
+    <div class="stat-card">
         <div class="stat-icon" style="background: rgba(200,150,62,0.12); color: #C8963E;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
         </div>
         <div class="stat-info">
             <h3><?= $unreadLeadsCount ?></h3>
             <p>Consultas sin leer</p>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="stat-info">
+            <h3><?= number_format($totalViews) ?></h3>
+            <p>Visitas totales</p>
         </div>
     </div>
 </div>
@@ -196,13 +225,15 @@ include __DIR__ . '/includes/admin_header.php';
                             <?php endif; ?>
                         </td>
                         <td>
-                            <div style="font-weight:600"><?= e($v['brand'] . ' ' . $v['model']) ?></div>
-                            <div class="text-sm text-muted"><?= e($v['year']) ?> &middot; <?= formatMileage($v['mileage']) ?></div>
+                            <a href="<?= SITE_URL ?>/admin/vehicle_edit.php?id=<?= $v['id'] ?>" style="text-decoration:none;color:inherit">
+                                <div style="font-weight:600"><?= e($v['brand'] . ' ' . $v['model']) ?></div>
+                                <div class="text-sm text-muted"><?= e($v['year']) ?> &middot; <?= formatMileage($v['mileage']) ?></div>
+                            </a>
                         </td>
                         <td style="font-weight:700;color:#1B3A5C"><?= formatPrice($v['price']) ?></td>
                         <td>
                             <?php
-                                $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red'][$v['status']] ?? 'badge-gray';
+                                $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red','proximamente'=>'badge-blue'][$v['status']] ?? 'badge-gray';
                             ?>
                             <span class="badge <?= $badgeClass ?>"><?= statusLabel($v['status']) ?></span>
                         </td>
@@ -214,5 +245,34 @@ include __DIR__ . '/includes/admin_header.php';
         </div>
     </div>
 </div>
+
+<!-- Top Viewed Vehicles -->
+<?php if (!empty($topViewed)): ?>
+<div class="card mt-3">
+    <div class="card-header">
+        <h2>Vehiculos mas visitados</h2>
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Vehiculo</th>
+                    <th class="text-center">Visitas</th>
+                    <th class="text-center">Consultas</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($topViewed as $tv): ?>
+                <tr>
+                    <td style="font-weight:600"><?= e($tv['brand'] . ' ' . $tv['model'] . ' ' . $tv['year']) ?></td>
+                    <td class="text-center"><?= number_format($tv['views']) ?></td>
+                    <td class="text-center"><?= (int)$tv['leads_count'] > 0 ? '<span class="badge badge-blue">'.$tv['leads_count'].'</span>' : '0' ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+<?php endif; ?>
 
 <?php include __DIR__ . '/includes/admin_footer.php'; ?>

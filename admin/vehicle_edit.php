@@ -70,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!in_array($fuel, ['gasolina','diesel','hibrido','electrico','glp'])) $errors[] = 'Combustible no valido.';
     if (!in_array($transmission, ['manual','automatico'])) $errors[] = 'Transmision no valida.';
     if (!in_array($body_type, ['sedan','suv','hatchback','coupe','cabrio','familiar','monovolumen','furgoneta','pick-up','otro'])) $errors[] = 'Tipo de carroceria no valido.';
-    if (!in_array($status, ['disponible','reservado','vendido'])) $errors[] = 'Estado no valido.';
+    if (!in_array($status, ['disponible','reservado','vendido','proximamente'])) $errors[] = 'Estado no valido.';
     if (!in_array($sale_type, ['rebu','iva_incluido'])) $errors[] = 'Tipo de venta no valido.';
 
     if (!empty($errors)) {
@@ -363,7 +363,13 @@ include __DIR__ . '/includes/admin_header.php';
                 </div>
                 <div class="card-body">
                     <div class="form-group">
-                        <label>Descripcion</label>
+                        <div class="d-flex justify-between items-center" style="margin-bottom:6px">
+                            <label style="margin-bottom:0">Descripcion</label>
+                            <button type="button" id="aiDescBtn" class="btn btn-sm btn-outline" onclick="generateAIDescription()" style="font-size:12px;padding:4px 10px">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                Generar con IA
+                            </button>
+                        </div>
                         <div id="quill-description" class="quill-editor"></div>
                         <textarea id="description" name="description" style="display:none"><?= e($f['description'] ?? '') ?></textarea>
                         <div class="hint">Usa el editor para dar formato: negritas, listas, encabezados, etc.</div>
@@ -392,6 +398,7 @@ include __DIR__ . '/includes/admin_header.php';
                             <option value="disponible" <?= ($f['status'] ?? 'disponible') === 'disponible' ? 'selected' : '' ?>>Disponible</option>
                             <option value="reservado" <?= ($f['status'] ?? '') === 'reservado' ? 'selected' : '' ?>>Reservado</option>
                             <option value="vendido" <?= ($f['status'] ?? '') === 'vendido' ? 'selected' : '' ?>>Vendido</option>
+                            <option value="proximamente" <?= ($f['status'] ?? '') === 'proximamente' ? 'selected' : '' ?>>Próximamente</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -518,12 +525,19 @@ include __DIR__ . '/includes/admin_header.php';
     <!-- Save Button -->
     <div class="d-flex justify-between items-center mt-3" style="padding-bottom:40px">
         <a href="<?= SITE_URL ?>/admin/vehicles.php" class="btn btn-outline">Cancelar</a>
-        <button type="submit" class="btn btn-gold" style="min-width:200px;justify-content:center">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            <?= $isEdit ? 'Guardar cambios' : 'Crear vehiculo' ?>
+        <button type="submit" class="btn btn-gold" id="saveBtn" style="min-width:200px;justify-content:center">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px" class="save-icon"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span class="save-text"><?= $isEdit ? 'Guardar cambios' : 'Crear vehiculo' ?></span>
+            <span class="save-spinner" style="display:none">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/></svg>
+                Guardando...
+            </span>
         </button>
     </div>
 </form>
+<style>
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+</style>
 
 <script>
 // ===== Quill Rich Text Editors =====
@@ -563,7 +577,7 @@ include __DIR__ . '/includes/admin_header.php';
         quillFeat.root.innerHTML = featField.value;
     }
 
-    // On form submit, copy Quill HTML to hidden textareas
+    // On form submit, copy Quill HTML to hidden textareas + show spinner
     var form = document.getElementById('vehicleForm');
     form.addEventListener('submit', function() {
         // Get the HTML content; if editor is empty, store empty string
@@ -576,7 +590,58 @@ include __DIR__ . '/includes/admin_header.php';
 
         descField.value = descHtml;
         featField.value = featHtml;
+
+        // Show loading spinner
+        var btn = document.getElementById('saveBtn');
+        btn.querySelector('.save-icon').style.display = 'none';
+        btn.querySelector('.save-text').style.display = 'none';
+        btn.querySelector('.save-spinner').style.display = 'inline-flex';
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
     });
+
+    // AI Description Generator
+    window.generateAIDescription = function() {
+        var brand = document.getElementById('brand').value;
+        var model = document.getElementById('model').value;
+        var version = document.getElementById('version').value;
+        var year = document.getElementById('year').value;
+        var fuel = document.getElementById('fuel').value;
+        var transmission = document.getElementById('transmission').value;
+        var power = document.getElementById('power_hp').value;
+        var color = document.getElementById('color').value;
+        var mileage = document.getElementById('mileage').value;
+        var bodyType = document.getElementById('body_type').value;
+
+        if (!brand || !model) {
+            alert('Introduce al menos la marca y el modelo para generar la descripcion.');
+            return;
+        }
+
+        var aiBtn = document.getElementById('aiDescBtn');
+        aiBtn.disabled = true;
+        aiBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/></svg> Generando...';
+
+        adminFetch('<?= SITE_URL ?>/admin/api/ai_description.php', {
+            brand: brand, model: model, version: version, year: year,
+            fuel: fuel, transmission: transmission, power_hp: power,
+            color: color, mileage: mileage, body_type: bodyType,
+            csrf_token: '<?= csrfToken() ?>'
+        }).then(function(data) {
+            if (data.description) {
+                quillDesc.root.innerHTML = data.description;
+            }
+            if (data.features) {
+                quillFeat.root.innerHTML = data.features;
+            }
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generar con IA';
+        }).catch(function() {
+            alert('Error al generar la descripcion. Intentalo de nuevo.');
+            aiBtn.disabled = false;
+            aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Generar con IA';
+        });
+    };
 })();
 
 // ===== Drag & Drop Upload =====
