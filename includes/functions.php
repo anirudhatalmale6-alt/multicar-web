@@ -192,6 +192,28 @@ function getFlash(): array {
     return $flash;
 }
 
+function trackPageView(string $pageType = 'other', ?int $vehicleId = null): void {
+    // Don't track admin pages or bots
+    if (defined('ADMIN_LOADED')) return;
+    $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+    if (preg_match('/bot|crawl|spider|slurp|curl|wget/i', $ua)) return;
+
+    try {
+        // Check if table exists
+        $check = db()->query("SHOW TABLES LIKE 'page_views'");
+        if ($check->rowCount() === 0) return;
+
+        $visitorHash = md5(($_SERVER['REMOTE_ADDR'] ?? '') . '|' . $ua);
+        $pageUrl = $_SERVER['REQUEST_URI'] ?? '/';
+        $referrer = $_SERVER['HTTP_REFERER'] ?? '';
+
+        $stmt = db()->prepare("INSERT INTO page_views (page_url, page_type, vehicle_id, visitor_hash, referrer) VALUES (?,?,?,?,?)");
+        $stmt->execute([substr($pageUrl, 0, 255), $pageType, $vehicleId, $visitorHash, substr($referrer, 0, 500)]);
+    } catch (Exception $e) {
+        // Silently fail — don't break the page
+    }
+}
+
 function getBrands(): array {
     return db()->query("SELECT DISTINCT brand FROM vehicles WHERE status = 'disponible' AND published_status = 'activo' ORDER BY brand")->fetchAll(PDO::FETCH_COLUMN);
 }

@@ -44,6 +44,64 @@ $recentVehicles = db()->query("
     LIMIT 5
 ")->fetchAll();
 
+// Analytics data (last 30 days)
+$hasAnalytics = false;
+$dailyData = [];
+$sourceData = [];
+$vehicleVisits = [];
+try {
+    $check = db()->query("SHOW TABLES LIKE 'page_views'");
+    if ($check->rowCount() > 0) {
+        $hasAnalytics = true;
+
+        // Daily unique visitors & page views (last 30 days)
+        $dailyData = db()->query("
+            SELECT DATE(created_at) as dia,
+                   COUNT(*) as paginas,
+                   COUNT(DISTINCT visitor_hash) as visitantes
+            FROM page_views
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY DATE(created_at)
+            ORDER BY dia ASC
+        ")->fetchAll();
+
+        // Traffic sources (top referrers)
+        $sourceData = db()->query("
+            SELECT
+                CASE
+                    WHEN referrer = '' OR referrer IS NULL THEN 'Directo'
+                    WHEN referrer LIKE '%google%' THEN 'Google'
+                    WHEN referrer LIKE '%bing%' THEN 'Bing'
+                    WHEN referrer LIKE '%facebook%' OR referrer LIKE '%fb.%' THEN 'Facebook'
+                    WHEN referrer LIKE '%instagram%' THEN 'Instagram'
+                    WHEN referrer LIKE '%tiktok%' THEN 'TikTok'
+                    WHEN referrer LIKE '%whatsapp%' OR referrer LIKE '%wa.me%' THEN 'WhatsApp'
+                    WHEN referrer LIKE '%" . str_replace("'", "\\'", SITE_URL) . "%' THEN 'Interno'
+                    ELSE SUBSTRING_INDEX(SUBSTRING_INDEX(REPLACE(REPLACE(referrer, 'https://', ''), 'http://', ''), '/', 1), '?', 1)
+                END as origen,
+                COUNT(*) as total
+            FROM page_views
+            WHERE created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            GROUP BY origen
+            ORDER BY total DESC
+            LIMIT 8
+        ")->fetchAll();
+
+        // Vehicle visits (active listings with views)
+        $vehicleVisits = db()->query("
+            SELECT v.brand, v.model, v.year, v.views,
+                COUNT(pv.id) as visitas_30d
+            FROM vehicles v
+            LEFT JOIN page_views pv ON pv.vehicle_id = v.id AND pv.created_at >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+            WHERE v.status = 'disponible'
+            GROUP BY v.id
+            HAVING v.views > 0 OR visitas_30d > 0
+            ORDER BY visitas_30d DESC
+            LIMIT 10
+        ")->fetchAll();
+    }
+} catch (Exception $e) {}
+
 include __DIR__ . '/includes/admin_header.php';
 ?>
 
@@ -134,6 +192,45 @@ include __DIR__ . '/includes/admin_header.php';
         Ver sitio web
     </a>
 </div>
+
+<?php if ($hasAnalytics): ?>
+<!-- Analytics Charts -->
+<div class="grid-2 mb-3">
+    <!-- Visitors & Page Views -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Visitantes y paginas vistas</h2>
+            <span class="text-sm text-muted">Ultimos 30 dias</span>
+        </div>
+        <div class="card-body" style="padding:16px">
+            <canvas id="chartVisitors" height="220"></canvas>
+        </div>
+    </div>
+    <!-- Traffic Sources -->
+    <div class="card">
+        <div class="card-header">
+            <h2>Origen del trafico</h2>
+            <span class="text-sm text-muted">Ultimos 30 dias</span>
+        </div>
+        <div class="card-body" style="padding:16px">
+            <canvas id="chartSources" height="220"></canvas>
+        </div>
+    </div>
+</div>
+
+<?php if (!empty($vehicleVisits)): ?>
+<!-- Vehicle Visits Chart -->
+<div class="card mb-3">
+    <div class="card-header">
+        <h2>Visitas por anuncio activo</h2>
+        <span class="text-sm text-muted">Ultimos 30 dias</span>
+    </div>
+    <div class="card-body" style="padding:16px">
+        <canvas id="chartVehicleVisits" height="180"></canvas>
+    </div>
+</div>
+<?php endif; ?>
+<?php endif; ?>
 
 <div class="grid-2">
     <!-- Recent Leads -->
@@ -236,6 +333,9 @@ include __DIR__ . '/includes/admin_header.php';
                                 $badgeClass = ['disponible'=>'badge-green','reservado'=>'badge-yellow','vendido'=>'badge-red','proximamente'=>'badge-blue'][$v['status']] ?? 'badge-gray';
                             ?>
                             <span class="badge <?= $badgeClass ?>"><?= statusLabel($v['status']) ?></span>
+                            <?php if (($v['published_status'] ?? 'activo') !== 'activo'): ?>
+                                <span class="badge badge-gray" style="margin-left:4px"><?= ($v['published_status'] ?? '') === 'borrador' ? 'Borrador' : 'No Activo' ?></span>
+                            <?php endif; ?>
                         </td>
                     </tr>
                     <?php endforeach; ?>
@@ -273,6 +373,129 @@ include __DIR__ . '/includes/admin_header.php';
         </table>
     </div>
 </div>
+<?php endif; ?>
+
+<?php if ($hasAnalytics): ?>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function(){
+    var navy = '#1B3A5C';
+    var gold = '#C8963E';
+    var blue = '#3b82f6';
+    var goldLight = 'rgba(200,150,62,0.15)';
+    var blueLight = 'rgba(59,130,246,0.15)';
+
+    // Chart defaults
+    Chart.defaults.font.family = "'DM Sans', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = '#64748b';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+
+    // -- Visitors & Page Views --
+    var dailyLabels = <?= json_encode(array_map(function($d) { return date('d/m', strtotime($d['dia'])); }, $dailyData)) ?>;
+    var dailyVisitors = <?= json_encode(array_map(function($d) { return (int)$d['visitantes']; }, $dailyData)) ?>;
+    var dailyPages = <?= json_encode(array_map(function($d) { return (int)$d['paginas']; }, $dailyData)) ?>;
+
+    new Chart(document.getElementById('chartVisitors'), {
+        type: 'line',
+        data: {
+            labels: dailyLabels,
+            datasets: [{
+                label: 'Visitantes unicos',
+                data: dailyVisitors,
+                borderColor: navy,
+                backgroundColor: goldLight,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3,
+                pointBackgroundColor: navy,
+                borderWidth: 2
+            }, {
+                label: 'Paginas vistas',
+                data: dailyPages,
+                borderColor: blue,
+                backgroundColor: blueLight,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 3,
+                pointBackgroundColor: blue,
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { mode: 'index', intersect: false },
+            scales: {
+                y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+
+    // -- Traffic Sources (doughnut) --
+    var sourceLabels = <?= json_encode(array_column($sourceData, 'origen')) ?>;
+    var sourceValues = <?= json_encode(array_map('intval', array_column($sourceData, 'total'))) ?>;
+    var sourceColors = ['#1B3A5C', '#C8963E', '#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+
+    new Chart(document.getElementById('chartSources'), {
+        type: 'doughnut',
+        data: {
+            labels: sourceLabels,
+            datasets: [{ data: sourceValues, backgroundColor: sourceColors, borderWidth: 2, borderColor: '#fff' }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '60%',
+            plugins: {
+                legend: { position: 'right', labels: { padding: 12, font: { size: 11 } } }
+            }
+        }
+    });
+
+    <?php if (!empty($vehicleVisits)): ?>
+    // -- Vehicle Visits (horizontal bar) --
+    var vLabels = <?= json_encode(array_map(function($v) { return $v['brand'] . ' ' . $v['model'] . ' ' . $v['year']; }, $vehicleVisits)) ?>;
+    var vVisits = <?= json_encode(array_map(function($v) { return (int)$v['visitas_30d']; }, $vehicleVisits)) ?>;
+    var vTotal = <?= json_encode(array_map(function($v) { return (int)$v['views']; }, $vehicleVisits)) ?>;
+
+    new Chart(document.getElementById('chartVehicleVisits'), {
+        type: 'bar',
+        data: {
+            labels: vLabels,
+            datasets: [{
+                label: 'Visitas (30 dias)',
+                data: vVisits,
+                backgroundColor: gold,
+                borderRadius: 4,
+                barThickness: 20
+            }, {
+                label: 'Visitas totales',
+                data: vTotal,
+                backgroundColor: blueLight,
+                borderColor: blue,
+                borderWidth: 1,
+                borderRadius: 4,
+                barThickness: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            scales: {
+                x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: 'rgba(0,0,0,0.04)' } },
+                y: { grid: { display: false } }
+            },
+            plugins: { legend: { position: 'top' } }
+        }
+    });
+    <?php endif; ?>
+})();
+</script>
 <?php endif; ?>
 
 <?php include __DIR__ . '/includes/admin_footer.php'; ?>

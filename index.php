@@ -49,6 +49,7 @@ $monthsExperience = (int)$startDate->diff($now)->format('%m') + (int)$startDate-
 $brands = getBrands();
 $years  = getYears();
 
+trackPageView('home');
 require_once __DIR__ . '/includes/header.php';
 ?>
 

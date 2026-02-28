@@ -48,6 +48,7 @@ if (!$vehicle) {
 // ── Increment views ──
 $stmtViews = db()->prepare("UPDATE vehicles SET views = views + 1 WHERE id = ?");
 $stmtViews->execute([$vehicle['id']]);
+trackPageView('vehicle', $vehicle['id']);
 
 // ── Get images ──
 $images = getVehicleImages($vehicle['id']);

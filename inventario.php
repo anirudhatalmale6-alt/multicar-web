@@ -145,6 +145,7 @@ function buildFilterUrl(array $overrides = []): string {
     return SITE_URL . '/inventario' . ($qs ? '?' . $qs : '');
 }
 
+trackPageView('inventory');
 require_once __DIR__ . '/includes/header.php';
 ?>
 

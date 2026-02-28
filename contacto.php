@@ -13,6 +13,7 @@ $headerSolid     = true;
 // ── Optional vehicle reference from URL ──
 $vehicleRef = trim($_GET['vehiculo'] ?? '');
 
+trackPageView('contact');
 require_once __DIR__ . '/includes/header.php';
 ?>
 
