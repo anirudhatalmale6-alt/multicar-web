@@ -72,26 +72,26 @@ try {
         $hasPublishedStatus = $colCheck->rowCount() > 0;
     } catch (Exception $e) {}
 
-    // Insert vehicle as borrador
+    // Insert vehicle as borrador (created_by = NULL since it's an API import)
     if ($hasPublishedStatus) {
         $stmt = db()->prepare("INSERT INTO vehicles
             (slug, brand, model, version, year, price, mileage, fuel, transmission,
              body_type, description, status, published_status, featured, created_by)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)");
         $stmt->execute([
             $slug, $brand, $model, $version, $year, $price, $mileage,
             $fuel, $transmission, $body_type, $description,
-            $status, 'borrador', 0, 0
+            $status, 'borrador', 0
         ]);
     } else {
         $stmt = db()->prepare("INSERT INTO vehicles
             (slug, brand, model, version, year, price, mileage, fuel, transmission,
              body_type, description, status, featured, created_by)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,NULL)");
         $stmt->execute([
             $slug, $brand, $model, $version, $year, $price, $mileage,
             $fuel, $transmission, $body_type, $description,
-            $status, 0, 0
+            $status, 0
         ]);
     }
     $vehicleId = (int)db()->lastInsertId();
