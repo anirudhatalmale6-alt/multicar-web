@@ -35,8 +35,9 @@ if (empty($featured)) {
 }
 
 // ── Stats ──
-$totalVehicles = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();
-$totalSold     = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido'")->fetchColumn();
+$totalVehicles    = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'disponible'")->fetchColumn();
+$totalProximamente = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'proximamente'")->fetchColumn();
+$totalSold        = db()->query("SELECT COUNT(*) FROM vehicles WHERE status = 'vendido'")->fetchColumn();
 
 // ── Auto-calculate months of experience ──
 $businessStart = getSetting('business_start_date', '2023-09-01');
@@ -57,11 +58,18 @@ require_once __DIR__ . '/includes/header.php';
         <div class="hero-grid"></div>
 
         <div class="hero-content">
-            <div class="hero-badge">
-                <?php if ($totalVehicles > 0): ?>
-                    <?= (int)$totalVehicles ?> vehículos disponibles
-                <?php else: ?>
-                    Nuevo inventario disponible
+            <div class="hero-badges">
+                <div class="hero-badge">
+                    <?php if ($totalVehicles > 0): ?>
+                        <?= (int)$totalVehicles ?> vehículos disponibles
+                    <?php else: ?>
+                        Nuevo inventario disponible
+                    <?php endif; ?>
+                </div>
+                <?php if ($totalProximamente > 0): ?>
+                <div class="hero-badge hero-badge-prox">
+                    <?= (int)$totalProximamente ?> próximamente
+                </div>
                 <?php endif; ?>
             </div>
 

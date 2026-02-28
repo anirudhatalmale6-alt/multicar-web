@@ -7,36 +7,35 @@
                         <img src="<?= SITE_URL ?>/assets/img/logo-white-transparent.png" alt="MULTICAR" class="logo-img" style="height:40px;width:auto">
                     </a>
                     <p>Tu concesionario de confianza. Compra, venta, alquiler y renting de vehículos con garantía y profesionalidad.</p>
+                    <?php
+                    $fbUrl = getSetting('social_facebook', '');
+                    $igUrl = getSetting('social_instagram', '');
+                    $ttUrl = getSetting('social_tiktok', '');
+                    ?>
                     <div class="footer-social">
-                        <?php if (SOCIAL_FACEBOOK && SOCIAL_FACEBOOK !== '#'): ?>
-                        <a href="<?= e(SOCIAL_FACEBOOK) ?>" target="_blank" rel="noopener" aria-label="Facebook">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-                        </a>
+                        <?php if ($fbUrl && $fbUrl !== '#'): ?>
+                        <a href="<?= e($fbUrl) ?>" target="_blank" rel="noopener" aria-label="Facebook">
                         <?php else: ?>
                         <a href="#" aria-label="Facebook">
+                        <?php endif; ?>
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
                         </a>
-                        <?php endif; ?>
 
-                        <?php if (SOCIAL_INSTAGRAM && SOCIAL_INSTAGRAM !== '#'): ?>
-                        <a href="<?= e(SOCIAL_INSTAGRAM) ?>" target="_blank" rel="noopener" aria-label="Instagram">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
-                        </a>
+                        <?php if ($igUrl && $igUrl !== '#'): ?>
+                        <a href="<?= e($igUrl) ?>" target="_blank" rel="noopener" aria-label="Instagram">
                         <?php else: ?>
                         <a href="#" aria-label="Instagram">
+                        <?php endif; ?>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                         </a>
-                        <?php endif; ?>
 
-                        <?php if (SOCIAL_TIKTOK && SOCIAL_TIKTOK !== '#'): ?>
-                        <a href="<?= e(SOCIAL_TIKTOK) ?>" target="_blank" rel="noopener" aria-label="TikTok">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78 2.92 2.92 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.57 6.33 6.33 0 0 0 9.37 22a6.33 6.33 0 0 0 6.37-6.22V9.34a8.16 8.16 0 0 0 3.85.97V6.69z"/></svg>
-                        </a>
+                        <?php if ($ttUrl && $ttUrl !== '#'): ?>
+                        <a href="<?= e($ttUrl) ?>" target="_blank" rel="noopener" aria-label="TikTok">
                         <?php else: ?>
                         <a href="#" aria-label="TikTok">
+                        <?php endif; ?>
                             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1 0-5.78 2.92 2.92 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 3 15.57 6.33 6.33 0 0 0 9.37 22a6.33 6.33 0 0 0 6.37-6.22V9.34a8.16 8.16 0 0 0 3.85.97V6.69z"/></svg>
                         </a>
-                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -64,15 +63,15 @@
                     <h4>Contacto</h4>
                     <div class="footer-contact-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                        <span><?= e(getSetting('address', 'Tu dirección aquí, Ciudad, España')) ?></span>
+                        <span><?= e(getSetting('site_address', 'Tu dirección aquí, Ciudad, España')) ?></span>
                     </div>
                     <div class="footer-contact-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                        <span><?= e(getSetting('phone', '+34 ' . substr(WHATSAPP_NUMBER, 2, 3) . ' ' . substr(WHATSAPP_NUMBER, 5, 3) . ' ' . substr(WHATSAPP_NUMBER, 8))) ?></span>
+                        <span><?= e(getSetting('site_phone', '+34 ' . substr(WHATSAPP_NUMBER, 2, 3) . ' ' . substr(WHATSAPP_NUMBER, 5, 3) . ' ' . substr(WHATSAPP_NUMBER, 8))) ?></span>
                     </div>
                     <div class="footer-contact-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span><?= e(getSetting('hours', 'Lun – Vie: 9:00 – 19:00 / Sáb: 10:00 – 14:00')) ?></span>
+                        <span><?= e(getSetting('site_schedule', 'Lun – Vie: 9:00 – 19:00 / Sáb: 10:00 – 14:00')) ?></span>
                     </div>
                 </div>
             </div>

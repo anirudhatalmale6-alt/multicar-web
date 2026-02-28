@@ -50,6 +50,7 @@ function requireLogin(): void {
 }
 
 function formatPrice(float $price): string {
+    if ($price <= 0) return 'Consultar';
     return number_format($price, 2, ',', '.') . ' €';
 }
 

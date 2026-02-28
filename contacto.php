@@ -98,7 +98,7 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <div>
                                 <h4>Dirección</h4>
-                                <p><?= e(getSetting('address', 'Tu dirección aquí, Ciudad, España')) ?></p>
+                                <p><?= e(getSetting('site_address', 'Tu dirección aquí, Ciudad, España')) ?></p>
                             </div>
                         </div>
 
@@ -108,7 +108,7 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <div>
                                 <h4>Teléfono</h4>
-                                <p><a href="tel:+<?= e(WHATSAPP_NUMBER) ?>"><?= e(getSetting('phone', '+34 ' . substr(WHATSAPP_NUMBER, 2, 3) . ' ' . substr(WHATSAPP_NUMBER, 5, 3) . ' ' . substr(WHATSAPP_NUMBER, 8))) ?></a></p>
+                                <p><a href="tel:+<?= e(WHATSAPP_NUMBER) ?>"><?= e(getSetting('site_phone', '+34 ' . substr(WHATSAPP_NUMBER, 2, 3) . ' ' . substr(WHATSAPP_NUMBER, 5, 3) . ' ' . substr(WHATSAPP_NUMBER, 8))) ?></a></p>
                             </div>
                         </div>
 
@@ -118,7 +118,7 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <div>
                                 <h4>Email</h4>
-                                <p><a href="mailto:<?= e(getSetting('email', 'info@multicar.autos')) ?>"><?= e(getSetting('email', 'info@multicar.autos')) ?></a></p>
+                                <p><a href="mailto:<?= e(getSetting('site_email', 'info@multicar.autos')) ?>"><?= e(getSetting('site_email', 'info@multicar.autos')) ?></a></p>
                             </div>
                         </div>
 
@@ -128,7 +128,7 @@ require_once __DIR__ . '/includes/header.php';
                             </div>
                             <div>
                                 <h4>Horario</h4>
-                                <p><?= nl2br(e(getSetting('hours', "Lun - Vie: 9:00 - 19:00\nSáb: 10:00 - 14:00"))) ?></p>
+                                <p><?= nl2br(e(getSetting('site_schedule', "Lun - Vie: 9:00 - 19:00\nSáb: 10:00 - 14:00"))) ?></p>
                             </div>
                         </div>
                     </div>
